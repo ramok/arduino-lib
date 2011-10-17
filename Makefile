@@ -7,7 +7,8 @@ MCU = atmega328p
 
 TARGET = libardunano.a
 
-OBJS = $(ARDUINO_LIB_SRC:.c=.o) $(ARDUINO_LIB_SRC:.cpp=.o)
+OBJS := $(ARDUINO_LIB_SRC:.c=.o)
+OBJS := $(OBJS:.cpp=.o)
 
 AR = avr-ar
 AR_OPTIONS = rcs
@@ -21,6 +22,7 @@ CPPOPTIONS = $(COPTIONS)
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
+	@rm $(TARGET)
 	$(AR) $(AR_OPTIONS) $(TARGET) $(OBJS)
 
 .cpp.o:
