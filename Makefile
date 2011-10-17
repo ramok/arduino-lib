@@ -5,7 +5,7 @@ ARDUINO_LIB_INC = -Iinclude/EEPROM -Iinclude/Ethernet -Iinclude/Ethernet/utility
 ARDUINO_BOARD = nano
 MCU = atmega328p
 
-TARGET = libardunano.a
+TARGET = lib/libardunano.a
 
 OBJS := $(ARDUINO_LIB_SRC:.c=.o)
 OBJS := $(OBJS:.cpp=.o)
@@ -22,7 +22,7 @@ CPPOPTIONS = $(COPTIONS)
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
-	@rm $(TARGET)
+	@-rm $(TARGET)
 	$(AR) $(AR_OPTIONS) $(TARGET) $(OBJS)
 
 .cpp.o:
