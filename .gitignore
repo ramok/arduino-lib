@@ -1,0 +1,7 @@
+.dep
+*.o
+*.elf
+*.hex
+*.a
+tags
+*.swp
