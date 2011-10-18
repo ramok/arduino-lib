@@ -66,7 +66,7 @@ AVRDUDECONF = /etc/avrdude.conf
 # See http://www.arduino.cc/cgi-bin/yabb2/YaBB.pl?num=1269643472
 ARDUINORESET = ardu-reset
 
-TARGET = main 
+TARGET = main
 
 SRC = $(TARGET).c
 CXXSRC = 
@@ -136,6 +136,7 @@ SIZE = avr-size
 NM = avr-nm
 AVRDUDE = $(AVRDUDEPATH)/avrdude
 REMOVE = rm -f
+REMOVE_DIR = rm -rf
 MV = mv -f
 
 # Define all object files.
@@ -219,13 +220,16 @@ $(TARGET).elf: $(OBJ)
 .S.o:
 	$(CC) -c $(ALL_ASFLAGS) $< -o $@
 
+DEPDIR = .dep
+
 # Include the dependency files.
--include $(shell mkdir .dep 2>/dev/null) $(wildcard .dep/*)
+-include $(shell mkdir $(DEPDIR) 2>/dev/null) $(wildcard $(DEPDIR)/*)
 
 # Target: clean project.
 clean:
 	$(REMOVE) $(TARGET).hex $(TARGET).eep $(TARGET).cof $(TARGET).elf \
 	$(TARGET).map $(TARGET).sym $(TARGET).lss \
 	$(OBJ) $(LST) $(SRC:.c=.s) $(SRC:.c=.d) $(CXXSRC:.cpp=.s) $(CXXSRC:.cpp=.d)
+	$(REMOVE_DIR) $(DEPDIR)
 
 .PHONY:	all build elf hex eep lss sym program coff extcoff clean 
