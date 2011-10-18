@@ -1,4 +1,6 @@
 .dep
+lib
+build
 *.o
 *.elf
 *.hex
