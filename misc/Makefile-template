@@ -46,27 +46,39 @@
 # $Id$
 
 # The port Arduino is connected to.
-# PORT = /dev/ttyUSB0
-# PORT = COM3
-PORT = 
+PORT = /dev/ttyUSB0
 
-# We are building using arduino library.
-ARDUINO_LIB = 
+# Arduino platform.
+ARCH = nano
+
+# We are building using arduino library. Which normally should be in the lib/arduino 
+# subdirectory of our project.
+ARDUINO_INC_PATH = lib/arduino/include
+ARDUINO_LIB_PATH = lib/arduino/lib/$(ARCH)
+ARDUINO_LIB = arduino
 
 # We need to specify path to the Arduino-compatible avrdude, which supports auto-reset feature.
 AVRDUDEPATH = /usr/bin
 AVRDUDECONF = /etc/avrdude.conf
 
 # Reset on Linux is unstable (need to figure out why, so we use some utility
-# which sets DTR line, so that Arduino is reset before avrdude programs the device.
+# which clears DTR line, so that Arduino is reset before avrdude programs the device.
+# See http://www.arduino.cc/cgi-bin/yabb2/YaBB.pl?num=1269643472
 ARDUINORESET = ardu-reset
 
-TARGET = main
+TARGET = main 
 
 SRC = $(TARGET).c
-CXXSRC =
+CXXSRC = 
 
-MCU = 
+ifeq ($(ARCH), nano)
+MCU = atmega328p
+else ifeq ($(ARCH), mega)
+MCU = atmega1280
+else
+$(error Unknown Arduino board: $(ARCH))
+endif
+
 F_CPU = 16000000L
 
 FORMAT = ihex
@@ -87,10 +99,10 @@ CDEFS = -DF_CPU=$(F_CPU)
 CXXDEFS = -DF_CPU=$(F_CPU)
 
 # Place -I options here
-CINCS = -I$(ARDUINO_LIB)/include
-CXXINCS = -I$(ARDUINO_LIB)/include
+CINCS = -I$(ARDUINO_INC_PATH)
+CXXINCS = -I-I$(ARDUINO_INC_PATH)
 
-CLIBS = -L$(ARDUINO_LIB)/lib 
+CLIBS = -L$(ARDUINO_LIB_PATH) 
 
 # Compiler flag to set the C Standard level.
 # c89   - "ANSI" C
@@ -107,7 +119,6 @@ CFLAGS = $(CDEBUG) $(CDEFS) $(CINCS) $(CLIBS) -O$(OPT) $(CWARN) $(CSTANDARD) $(C
 CXXFLAGS = $(CDEFS) $(CINCS) $(CLIBS) -O$(OPT)
 #ASFLAGS = -Wa,-adhlns=$(<:.S=.lst),-gstabs 
 LDFLAGS = 
-
 
 # Programming support using avrdude. Settings and variables.
 AVRDUDE_PROGRAMMER = stk500v1
@@ -142,7 +153,6 @@ ALL_CFLAGS = -mmcu=$(MCU) -I. $(CFLAGS) $(GENDEPFLAGS)
 ALL_CXXFLAGS = -mmcu=$(MCU) -I. $(CXXFLAGS) $(GENDEPFLAGS)
 ALL_ASFLAGS = -mmcu=$(MCU) -I. -x assembler-with-cpp $(ASFLAGS) 
 
-
 # Default target.
 all: build
 
@@ -159,9 +169,6 @@ upload: $(TARGET).hex
 	$(ARDUINORESET)
 	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH)
 
-
-
-
 # Convert ELF to COFF for use in debugging / simulating in AVR Studio or VMLAB.
 COFFCONVERT=$(OBJCOPY) --debugging \
 --change-section-address .data-0x800000 \
@@ -169,14 +176,11 @@ COFFCONVERT=$(OBJCOPY) --debugging \
 --change-section-address .noinit-0x800000 \
 --change-section-address .eeprom-0x810000 
 
-
 coff: $(TARGET).elf
 	$(COFFCONVERT) -O coff-avr $(TARGET).elf $(TARGET).cof
 
-
 extcoff: $(TARGET).elf
 	$(COFFCONVERT) -O coff-ext-avr $(TARGET).elf $(TARGET).cof
-
 
 .SUFFIXES: .elf .hex .eep .lss .sym
 
@@ -195,12 +199,9 @@ extcoff: $(TARGET).elf
 .elf.sym:
 	$(NM) -n $< > $@
 
-
-
 # Link: create ELF output file from object files.
 $(TARGET).elf: $(OBJ)
-	$(CC) $(ALL_CFLAGS) $(OBJ) --output $@ $(LDFLAGS) -larduino
-
+	$(CC) $(ALL_CFLAGS) $(OBJ) --output $@ $(LDFLAGS) -l$(ARDUINO_LIB)
 
 # Compile: create object files from C++ source files.
 .cpp.o:
@@ -210,11 +211,9 @@ $(TARGET).elf: $(OBJ)
 .c.o:
 	$(CC) -c $(ALL_CFLAGS) $< -o $@ 
 
-
 # Compile: create assembler files from C source files.
 .c.s:
 	$(CC) -S $(ALL_CFLAGS) $< -o $@
-
 
 # Assemble: create object files from assembler source files.
 .S.o:
