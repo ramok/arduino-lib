@@ -1,4 +1,8 @@
 # Builds Arduino library.
+#
+# FIXME: Build directories are created every time you run make.
+# FIXME: Library rebuild every time.
+# FIXME: ar must not update the library but rebuild it. 
 
 ARDUINO_LIB_SRC := $(wildcard src/EEPROM/*.cpp src/Ethernet/*.cpp src/Ethernet/utility/*.cpp src/Firmata/*.cpp src/LiquidCrystal/*.cpp src/Matrix/*.cpp src/SD/*.cpp src/SD/utility/*.cpp src/Sprite/*.cpp src/SPI/*.cpp src/Servo/*.cpp src/Stepper/*.cpp src/SoftwareSerial/*.cpp src/Wire/*.cpp src/Wire/utility/*.c src/*.c src/*.cpp)
 
