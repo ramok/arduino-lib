@@ -3,6 +3,11 @@
 # FIXME: Build directories are created every time you run make.
 # FIXME: Library rebuild every time.
 # FIXME: ar must not update the library but rebuild it. 
+# FIXME: Have to specify ARCH even for make clean-all.
+#
+# TODO: Add autodependency generation.
+# TODO: Automatic source search.
+# TODO: Refactor variables.
 
 ARDUINO_LIB_SRC := $(wildcard src/EEPROM/*.cpp src/Ethernet/*.cpp src/Ethernet/utility/*.cpp src/Firmata/*.cpp src/LiquidCrystal/*.cpp src/Matrix/*.cpp src/SD/*.cpp src/SD/utility/*.cpp src/Sprite/*.cpp src/SPI/*.cpp src/Servo/*.cpp src/Stepper/*.cpp src/SoftwareSerial/*.cpp src/Wire/*.cpp src/Wire/utility/*.c src/*.c src/*.cpp)
 
@@ -27,7 +32,7 @@ OUTPUT_DIR = $(LIB_DIR)/$(ARCH)
 OBJS_DIR = $(BUILD_DIR)/$(ARCH)
 SRC_DIR = src
 
-OBJS := $(patsubst %.cpp,%.o,$(patsubst %.c,%.o,$(patsubst src/%,$(OBJS_DIR)/%,$(ARDUINO_LIB_SRC))))
+OBJS := $(patsubst %.cpp,%.o,$(patsubst %.c,%.o,$(patsubst $(SRC_DIR)/%,$(OBJS_DIR)/%,$(ARDUINO_LIB_SRC))))
 OBJS_SUBDIRS := $(sort $(dir $(OBJS)))
 
 TARGET = $(OUTPUT_DIR)/libarduino.a
