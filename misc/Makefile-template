@@ -54,7 +54,7 @@ ARCH = nano
 # We are building using arduino library. Which normally should be in the lib/arduino 
 # subdirectory of our project.
 ARDUINO_INC_PATH = lib/arduino/include
-ARDUINO_LIB_PATH = lib/arduino/lib/$(ARCH)
+ARDUINO_LIB_PATH = lib/arduino/build/$(ARCH)
 ARDUINO_LIB = arduino
 
 # We need to specify path to the Arduino-compatible avrdude, which supports auto-reset feature.

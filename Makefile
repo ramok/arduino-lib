@@ -25,17 +25,15 @@ else
 $(error Unknown Arduino board: $(ARCH))
 endif
 
-LIB_DIR = lib
 BUILD_DIR = build
-
-OUTPUT_DIR = $(LIB_DIR)/$(ARCH)
-OBJS_DIR = $(BUILD_DIR)/$(ARCH)
+ARCH_BUILD_DIR = $(BUILD_DIR)/$(ARCH)
 SRC_DIR = src
+LIB_NAME = arduino
 
-OBJS := $(patsubst %.cpp,%.o,$(patsubst %.c,%.o,$(patsubst $(SRC_DIR)/%,$(OBJS_DIR)/%,$(ARDUINO_LIB_SRC))))
+OBJS := $(patsubst %.cpp,%.o,$(patsubst %.c,%.o,$(patsubst $(SRC_DIR)/%,$(ARCH_BUILD_DIR)/%,$(ARDUINO_LIB_SRC))))
 OBJS_SUBDIRS := $(sort $(dir $(OBJS)))
 
-TARGET = $(OUTPUT_DIR)/libarduino.a
+TARGET = $(ARCH_BUILD_DIR)/lib$(LIB_NAME).a
 
 # Tools.
 AR = avr-ar
@@ -52,26 +50,23 @@ all: $(TARGET)
 $(TARGET): subdirs $(OBJS)
 	$(AR) $(ARFLAGS) $(TARGET) $(OBJS)
 
-subdirs: $(OUTPUT_DIR) $(OBJS_SUBDIRS)
+subdirs: $(OBJS_SUBDIRS)
     
-$(OUTPUT_DIR):
-	@mkdir -p $@ 
-
 $(OBJS_SUBDIRS):
 	@mkdir -p $@
 
-$(OBJS_DIR)/%.o: $(SRC_DIR)/%.cpp
+$(ARCH_BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 	$(CXX) $(CXXFLAGS) $< -o $@  
 
-$(OBJS_DIR)/%.o: $(SRC_DIR)/%.c
+$(ARCH_BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) $< -o $@  
 
 clean:
-	-rm -rf $(OBJS_DIR) $(OUTPUT_DIR) 2>/dev/null
+	-rm -rf $(ARCH_BUILD_DIR) 2>/dev/null
 
 clean-all:
-	-rm -rf $(BUILD_DIR) $(LIB_DIR)
+	-rm -rf $(BUILD_DIR)
 
-.PHONY: clean clean-all subdirs $(OBJS_SUBDIRS) $(OUTPUT_DIR)
+.PHONY: clean clean-all subdirs $(OBJS_SUBDIRS)
 
      
