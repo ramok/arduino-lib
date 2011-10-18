@@ -13,14 +13,12 @@ ARDUINO_LIB_SRC := $(wildcard src/EEPROM/*.cpp src/Ethernet/*.cpp src/Ethernet/u
 
 ARDUINO_LIB_INC = -Iinclude/EEPROM -Iinclude/Ethernet -Iinclude/Ethernet/utility -Iinclude/Firmata -Iinclude/LiquidCrystal -Iinclude/Matrix -Iinclude/SD -Iinclude/SD/utility -Iinclude/SPI -Iinclude/Servo -Iinclude/Sprite -Iinclude/Stepper -Iinclude/SoftwareSerial -Iinclude/Wire -Iinclude/Wire/utility -Iinclude
 
-ARCH = 
-
 ifeq ($(ARCH),nano)
 MCU = atmega328p
 else ifeq ($(ARCH),mega)
 MCU = atmega1280
 else ifeq ($(strip $(ARCH)),)
-$(error Please tell for which Arduino board you build the library)	
+$(error Please specify for which Arduino board you build the library, for example ARCH=nano)	
 else 
 $(error Unknown Arduino board: $(ARCH))
 endif
@@ -31,7 +29,6 @@ SRC_DIR = src
 LIB_NAME = arduino
 
 OBJS := $(patsubst %.cpp,%.o,$(patsubst %.c,%.o,$(patsubst $(SRC_DIR)/%,$(ARCH_BUILD_DIR)/%,$(ARDUINO_LIB_SRC))))
-OBJS_SUBDIRS := $(sort $(dir $(OBJS)))
 
 TARGET = $(ARCH_BUILD_DIR)/lib$(LIB_NAME).a
 
@@ -47,18 +44,15 @@ CXXFLAGS = $(CFLAGS)
 
 all: $(TARGET)
 
-$(TARGET): subdirs $(OBJS)
+$(TARGET): $(OBJS)
 	$(AR) $(ARFLAGS) $(TARGET) $(OBJS)
 
-subdirs: $(OBJS_SUBDIRS)
-    
-$(OBJS_SUBDIRS):
-	@mkdir -p $@
-
 $(ARCH_BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
+	+[ -d $(dir $@) ] || mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) $< -o $@  
 
 $(ARCH_BUILD_DIR)/%.o: $(SRC_DIR)/%.c
+	+[ -d $(dir $@) ] || mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $< -o $@  
 
 clean:
@@ -67,6 +61,6 @@ clean:
 clean-all:
 	-rm -rf $(BUILD_DIR)
 
-.PHONY: clean clean-all subdirs $(OBJS_SUBDIRS)
+.PHONY: clean clean-all
 
      
