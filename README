@@ -3,9 +3,9 @@
 
    AVR GCC and avr-binutils must be installed and accessible through PATH.
 
-2. Before using you have to build the library for specific arduino platform.
+2. Before using you have to build the library for specific Arduino platform.
    Set ARCH variable to the specific platform for which you are going to build the
-   library. The currently supported platform are mega and nano. So if you want to
+   library. The currently supported platforms are mega and nano. So if you want to
    build Arduino library for Arduino Nano you have to use: 
 
    make ARCH=nano
@@ -14,5 +14,6 @@
 
 3. Makefile template for building Arduino applications with the library is in
    misc/Makefile-template, which you may copy to your project source tree and
-   modify according to your project specific. 
+   modify according to your project specific. See the instructions inside the
+   Makefile template. 
 
