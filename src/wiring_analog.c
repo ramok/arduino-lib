@@ -181,3 +181,45 @@ void analogWrite(uint8_t pin, int val)
 	else
 		digitalWrite(pin, HIGH);
 }
+
+// This function is used to stop producing any PWM on the pin. The digital value
+// left unchanged, so it is up to the developer to adjust it accordingly.
+void analogStop(uint8_t pin)
+{
+	if (digitalPinToTimer(pin) == TIMER1A) {
+		cbi(TCCR1A, COM1A1);
+	} else if (digitalPinToTimer(pin) == TIMER1B) {
+		cbi(TCCR1A, COM1B1);
+#if defined(__AVR_ATmega8__)
+	} else if (digitalPinToTimer(pin) == TIMER2) {
+		cbi(TCCR2, COM21);
+#else
+	} else if (digitalPinToTimer(pin) == TIMER0A) {
+		cbi(TCCR0A, COM0A1);
+	} else if (digitalPinToTimer(pin) == TIMER0B) {
+		cbi(TCCR0A, COM0B1);
+	} else if (digitalPinToTimer(pin) == TIMER2A) {
+		cbi(TCCR2A, COM2A1);
+	} else if (digitalPinToTimer(pin) == TIMER2B) {
+		cbi(TCCR2A, COM2B1);
+#endif
+#if defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
+	} else if (digitalPinToTimer(pin) == TIMER3A) {
+		cbi(TCCR3A, COM3A1);
+	} else if (digitalPinToTimer(pin) == TIMER3B) {
+		cbi(TCCR3A, COM3B1);
+	} else if (digitalPinToTimer(pin) == TIMER3C) {
+		cbi(TCCR3A, COM3C1);
+	} else if (digitalPinToTimer(pin) == TIMER4A) {
+		cbi(TCCR4A, COM4A1);
+	} else if (digitalPinToTimer(pin) == TIMER4B) {
+		cbi(TCCR4A, COM4B1);
+	} else if (digitalPinToTimer(pin) == TIMER4C) {
+		cbi(TCCR4A, COM4C1);
+	} else if (digitalPinToTimer(pin) == TIMER5A) {
+		cbi(TCCR5A, COM5A1);
+	} else if (digitalPinToTimer(pin) == TIMER5B) {
+		cbi(TCCR5A, COM5B1);
+#endif
+	} 
+}
