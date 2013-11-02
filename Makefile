@@ -15,6 +15,8 @@ ARDUINO_LIB_INC = -Iinclude/EEPROM -Iinclude/Ethernet -Iinclude/Ethernet/utility
 
 ifeq ($(ARCH),nano)
 MCU = atmega328p
+else ifeq ($(ARCH),mini)
+MCU = atmega328p
 else ifeq ($(ARCH),mega)
 MCU = atmega1280
 else ifeq ($(strip $(ARCH)),)
