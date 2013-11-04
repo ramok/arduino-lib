@@ -12,8 +12,7 @@
 
    The built library is put in lib/$(ARCH)/libarduino.a.
 
-3. Makefile template for building Arduino applications with the library is in
-   misc/Makefile-template, which you may copy to your project source tree and
-   modify according to your project specific. See the instructions inside the
-   Makefile template. 
+3. To generate new project you have to use:
+
+   make new-project ARCH=mini DESTDIR=~/work/myprj
 

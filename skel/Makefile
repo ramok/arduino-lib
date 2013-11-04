@@ -68,8 +68,14 @@ ARDUINORESET = ardu-reset
 
 TARGET = main
 
-SRC = $(TARGET).c
-CXXSRC =
+SRC = 
+CXXSRC = $(TARGET).cpp
+
+#CXXSRC += test.cpp
+
+# CLIBS   += -L$(ARDUINO_LIB_PATH)/SPI -L$(ARDUINO_LIB_PATH)/CAN_BUS_Shield
+# CINCS   += -I$(ARDUINO_INC_PATH)/SPI -I$(ARDUINO_INC_PATH)/CAN_BUS_Shield
+# CXXINCS += -I$(ARDUINO_INC_PATH)/SPI -I$(ARDUINO_INC_PATH)/CAN_BUS_Shield
 
 ifeq ($(ARCH), nano)
 MCU = atmega328p
