@@ -770,12 +770,12 @@ INT8U MCP_CAN::sendMsg()
                             len :   buf length
                             *buf:   data buf
 ** Output parameters:       NONE
-** Returned value:          NONE
+** Returned value:          if success
 *********************************************************************************************************/
 INT8U MCP_CAN::sendMsgBuf(INT32U id, INT8U ext, INT8U len, INT8U *buf)
 {
     setMsg(id, ext, len, buf);
-    sendMsg();
+    return sendMsg();
 }
 
 /*********************************************************************************************************
@@ -816,12 +816,21 @@ INT8U MCP_CAN::readMsg()
 *********************************************************************************************************/
 INT8U MCP_CAN::readMsgBuf(INT8U *len, INT8U buf[])
 {
-    readMsg();
-    *len = m_nDlc;
-    for(int i = 0; i<m_nDlc; i++)
+    int res = readMsg();
+
+    if (res != CAN_OK)
     {
-      buf[i] = m_nDta[i];
+        *len = 0;
+        return res;
     }
+
+    *len = m_nDlc;
+    for(int i = 0; i < m_nDlc; i++)
+    {
+        buf[i] = m_nDta[i];
+    }
+
+    return res;
 }
 
 /*********************************************************************************************************
