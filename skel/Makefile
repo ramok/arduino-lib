@@ -84,7 +84,7 @@ endif
 F_CPU = 16000000L
 
 FORMAT = ihex
-UPLOAD_RATE = 57600
+UPLOAD_RATE = 115200
 
 # Name of this Makefile (used for "make depend").
 MAKEFILE = Makefile
@@ -123,10 +123,10 @@ CXXFLAGS = $(CDEFS) $(CINCS) $(CLIBS) -O$(OPT)
 LDFLAGS =
 
 # Programming support using avrdude. Settings and variables.
-AVRDUDE_PROGRAMMER = stk500v1
+AVRDUDE_PROGRAMMER = arduino
 AVRDUDE_PORT = $(PORT)
 AVRDUDE_WRITE_FLASH = -U flash:w:$(TARGET).hex
-AVRDUDE_FLAGS = -v -F -p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER) \
+AVRDUDE_FLAGS = -v -p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER) \
   -b $(UPLOAD_RATE) -C $(AVRDUDECONF)
 
 # Program settings
@@ -169,7 +169,8 @@ sym: $(TARGET).sym
 
 # Program the device.
 upload: $(TARGET).hex
-	$(ARDUINORESET)
+	#$(ARDUINORESET)
+	if fuser $(PORT); then echo $(PORT) busy; exit 1; fi
 	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH)
 
 # Convert ELF to COFF for use in debugging / simulating in AVR Studio or VMLAB.
