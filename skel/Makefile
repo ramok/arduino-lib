@@ -157,7 +157,7 @@ ALL_CXXFLAGS = -mmcu=$(MCU) -I. $(CXXFLAGS) $(GENDEPFLAGS)
 ALL_ASFLAGS = -mmcu=$(MCU) -I. -x assembler-with-cpp $(ASFLAGS)
 
 # Default target.
-all: build
+all: .git $(ARDUINO_LIB).a build
 
 build: elf hex
 
@@ -203,9 +203,22 @@ extcoff: $(TARGET).elf
 .elf.sym:
 	$(NM) -n $< > $@
 
+.git:
+	git init .
+	git add Makefile
+	[ -e .vimrc ] && git add .vimrc
+	git commit -m init
+
 # Link: create ELF output file from object files.
-$(TARGET).elf: $(OBJ)
+$(TARGET).elf: $(OBJ) $(ARDUINO_LIB).a
 	$(CC) $(ALL_CFLAGS) $(OBJ) --output $@ $(LDFLAGS) -l$(ARDUINO_LIB)
+
+$(ARDUINO_LIB).a: lib/arduino
+	make ARCH=$(ARCH) -C lib/arduino
+
+lib/arduino:
+	mkdir -p lib
+	cd lib; git submodule add ssh://lab.evologics.de/var/cache/git/arduino-lib.git arduino
 
 # Compile: create object files from C++ source files.
 .cpp.o:
@@ -234,5 +247,6 @@ clean:
 	$(TARGET).map $(TARGET).sym $(TARGET).lss \
 	$(OBJ) $(LST) $(SRC:.c=.s) $(SRC:.c=.d) $(CXXSRC:.cpp=.s) $(CXXSRC:.cpp=.d)
 	$(REMOVE_DIR) $(DEPDIR)
+	make ARCH=$(ARCH) -C lib/arduino clean
 
 .PHONY:	all build elf hex eep lss sym program coff extcoff clean
