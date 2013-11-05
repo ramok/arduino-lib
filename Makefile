@@ -62,8 +62,8 @@ $(DESTDIR)/.git:
 	git commit -m init
 
 $(DESTDIR)/lib/arduino:
-	cd $(DESTDIR) && mkdir -p lib && cd lib && \
-	git submodule add ssh://lab.evologics.de/var/cache/git/arduino-lib.git arduino && \
+	cd $(DESTDIR) && mkdir -p lib && \
+	git submodule add ssh://lab.evologics.de/var/cache/git/arduino-lib.git lib/arduino && \
 	git commit -m 'add submodule arduino-lib'
 
 $(TARGET): $(OBJS)
