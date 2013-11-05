@@ -1,7 +1,7 @@
 1. Push project to server:
 
-    PRJ=${PWD##*/}; RDIR=/var/cache/git/$PRJ.git; RHOST=lab.evologics.de
+    PRJ=${PWD##*/}; RDIR=/var/cache/git/$PRJ.git; RHOST=your.host SHARE_GROUP=your-group
     git remote add origin ssh://$RHOST$RDIR
     ssh $RHOST mkdir $RDIR\;git init --shared=group --bare $RDIR
-    ssh $RHOST chown -R :evologics-staff $RDIR\; chmod -R g+w $RDIR
+    ssh $RHOST chown -R :$SHARE_GROUP $RDIR\; chmod -R g+w $RDIR
     git push -u origin master
