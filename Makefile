@@ -9,9 +9,45 @@
 # TODO: Automatic source search.
 # TODO: Refactor variables.
 
-ARDUINO_LIB_SRC := $(wildcard src/EEPROM/*.cpp src/Ethernet/*.cpp src/Ethernet/utility/*.cpp src/Firmata/*.cpp src/LiquidCrystal/*.cpp src/Matrix/*.cpp src/SD/*.cpp src/SD/utility/*.cpp src/Sprite/*.cpp src/SPI/*.cpp src/CAN_BUS_Shield/*.cpp src/Servo/*.cpp src/Stepper/*.cpp src/SoftwareSerial/*.cpp src/Wire/*.cpp src/Wire/utility/*.c src/*.c src/*.cpp)
+ARDUINO_LIB_SRC := $(wildcard 					   \
+						src/EEPROM/*.cpp           \
+						src/Ethernet/*.cpp         \
+						src/Ethernet/utility/*.cpp \
+						src/Firmata/*.cpp          \
+						src/LiquidCrystal/*.cpp    \
+						src/Matrix/*.cpp           \
+						src/SD/*.cpp               \
+						src/SD/utility/*.cpp       \
+						src/Sprite/*.cpp           \
+						src/SPI/*.cpp              \
+						src/CAN_BUS_Shield/*.cpp   \
+						src/Servo/*.cpp            \
+						src/Stepper/*.cpp          \
+						src/SoftwareSerial/*.cpp   \
+						src/Wire/*.cpp             \
+						src/Wire/utility/*.c       \
+						src/MsTimer2/*.cpp         \
+						src/*.c                    \
+						src/*.cpp)
 
-ARDUINO_LIB_INC = -Iinclude/EEPROM -Iinclude/Ethernet -Iinclude/Ethernet/utility -Iinclude/Firmata -Iinclude/LiquidCrystal -Iinclude/Matrix -Iinclude/SD -Iinclude/SD/utility -Iinclude/SPI -Iinclude/CAN_BUS_Shield -Iinclude/Servo -Iinclude/Sprite -Iinclude/Stepper -Iinclude/SoftwareSerial -Iinclude/Wire -Iinclude/Wire/utility -Iinclude
+ARDUINO_LIB_INC = -Iinclude/EEPROM 				     \
+                  -Iinclude/Ethernet                 \
+                  -Iinclude/Ethernet/utility         \
+                  -Iinclude/Firmata                  \
+                  -Iinclude/LiquidCrystal            \
+                  -Iinclude/Matrix                   \
+                  -Iinclude/SD                       \
+                  -Iinclude/SD/utility               \
+                  -Iinclude/SPI                      \
+                  -Iinclude/CAN_BUS_Shield           \
+                  -Iinclude/Servo                    \
+                  -Iinclude/Sprite                   \
+                  -Iinclude/Stepper                  \
+                  -Iinclude/SoftwareSerial           \
+                  -Iinclude/Wire                     \
+                  -Iinclude/Wire/utility             \
+                  -Iinclude/MsTimer2                 \
+                  -Iinclude
 
 ifeq ($(ARCH),nano)
 MCU = atmega328p
