@@ -291,7 +291,7 @@ void MCP_CAN::mcp2515_initCANBuffers(void)
 {
     INT8U i, a1, a2, a3;
 
-    INT8U ext = 0;
+    INT8U ext = 1;
     INT32U ulMask = 0x00, ulFilt = 0x00;
 
 
