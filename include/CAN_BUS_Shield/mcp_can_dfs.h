@@ -32,7 +32,10 @@
 #endif
 
 // if print debug information
-#define DEBUG_MODE 1
+#ifndef DEBUG_MODE
+#define DEBUG_MODE 0
+#endif
+
 /*
  *   Begin mt
  */
@@ -304,7 +307,9 @@
 #define MCP2515_FAIL       (1)
 #define MCP_ALLTXBUSY      (2)
 
-#define CANDEBUG   1
+#ifndef CANDEBUG
+#define CANDEBUG   0
+#endif
 
 #define CANUSELOOP 0
 

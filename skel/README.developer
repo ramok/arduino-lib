@@ -5,3 +5,6 @@
     ssh $RHOST mkdir $RDIR\;git init --shared=group --bare $RDIR
     ssh $RHOST chown -R :$SHARE_GROUP $RDIR\; chmod -R g+w $RDIR
     git push -u origin master
+
+2. Oneliner to restart kemit after arduino flashing
+    DEV=/dev/ttyUSB0;while :; do kermit -cl $DEV -b 115200;reset;sleep 1;while fuser $DEV;do echo "press ctrl-c to quit";sleep 1;done;sleep 2;done
