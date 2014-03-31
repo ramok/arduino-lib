@@ -55,7 +55,7 @@ int analogRead(uint8_t pin)
 	ADMUX = (analog_reference << 6) | (pin & 0x07);
 
 	// without a delay, we seem to read from the wrong channel
-	//delay(1);
+	delay(1);
 
 	// start the conversion
 	sbi(ADCSRA, ADSC);
