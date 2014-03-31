@@ -103,14 +103,13 @@ DEBUG = stabs
 OPT = s
 
 # Place -D or -U options here
-CDEFS = -DF_CPU=$(F_CPU)
+CDEFS 	= -DF_CPU=$(F_CPU)
 CXXDEFS = -DF_CPU=$(F_CPU)
 
 # Place -I options here
-CINCS = -I$(ARDUINO_INC_PATH)
-CXXINCS = -I-I$(ARDUINO_INC_PATH)
-
-CLIBS = -L$(ARDUINO_LIB_PATH)
+CINCS 	+= -I$(ARDUINO_INC_PATH)
+CXXINCS += -I$(ARDUINO_INC_PATH)
+CLIBS 	+= -L$(ARDUINO_LIB_PATH)
 
 # Compiler flag to set the C Standard level.
 # c89   - "ANSI" C
