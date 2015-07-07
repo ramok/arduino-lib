@@ -102,7 +102,7 @@ $(DESTDIR)/lib/arduino:
 	git submodule add ://github.com/ramok/arduino-lib.git lib/arduino && 	\
 	git submodule init && 							\
 	git submodule update && 						\
-	git commit -m 'add submodule arduino-lib'
+	git commit -am 'add submodule arduino-lib'
 
 $(TARGET): $(OBJS)
 	$(AR) $(ARFLAGS) $(TARGET) $(OBJS)
