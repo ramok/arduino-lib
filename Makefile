@@ -99,8 +99,10 @@ $(DESTDIR)/.git:
 
 $(DESTDIR)/lib/arduino:
 	cd $(DESTDIR) && mkdir -p lib && \
-	git submodule add ssh://lab.evologics.de/var/cache/git/arduino-lib.git lib/arduino && \
-	git commit -m 'add submodule arduino-lib'
+	git submodule add ://github.com/ramok/arduino-lib.git lib/arduino && 	\
+	git submodule init && 							\
+	git submodule update && 						\
+	git commit -am 'add submodule arduino-lib'
 
 $(TARGET): $(OBJS)
 	$(AR) $(ARFLAGS) $(TARGET) $(OBJS)
