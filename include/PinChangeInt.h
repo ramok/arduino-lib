@@ -125,9 +125,9 @@ Copyright 2010-2014 Michael Schwager (aka, "GreyGnome")
 
 // Maurice Beelen, nms277, Akesson Karlpetter, and Orly Andico
 // sent in fixes to work with Arduino >= version 1.0
-#include <Arduino.h>
+#include <arduino.h>
 #include <new.h>
-#include <wiring_private.h> // cbi and sbi defined here
+#include <pins_arduino.h>
 
 #undef DEBUG
 
