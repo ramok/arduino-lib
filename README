@@ -16,3 +16,5 @@
 
    make new-project ARCH=mini DESTDIR=~/work/myprj
 
+Links
+https://www.arduino.cc/en/Hacking/PinMapping168
