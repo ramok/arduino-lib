@@ -81,6 +81,8 @@ ifeq ($(ARCH), nano)
 MCU = atmega328p
 else ifeq ($(ARCH),mini)
 MCU = atmega328p
+else ifeq ($(ARCH),uno)
+MCU = atmega328p
 else ifeq ($(ARCH), mega)
 MCU = atmega1280
 else
