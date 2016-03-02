@@ -3,18 +3,23 @@
 #include <stdio.h>
 #include <util/delay.h>
 
+#include <uart.h>
+#include <logger.h>
+
 #define SERIAL_SPEED     115200
 
 int main()
 {
     init();
-
-    Serial.begin(SERIAL_SPEED);
-    Serial.println("start");
+    uart_init(SERIAL_SPEED);
+    logger_init(LOG_FATAL|LOG_ERROR|LOG_WARNING|LOG_INFO);
 
     for (;;)
     {
-        Serial.println("alive");
+#ifdef UART_INPUT
+        uart_handle();
+#endif
+        printf("alive\n");
         delay(500);
     }
 
