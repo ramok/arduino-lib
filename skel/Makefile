@@ -34,6 +34,8 @@
 #     representing the USB or serial connection to your Arduino board
 #     (e.g. PORT = /dev/tty.USB0).  If the exact name of this file
 #     changes, you can use * as a wildcard (e.g. PORT = /dev/tty.USB*).
+#     Also "PORT" can refet to TCP port (if you use TCP to serial converter).
+#     For example: PORT = net:192.168.0.100:4001
 #
 #  5. At the command line, change to the directory containing your
 #     program's file and the makefile.
@@ -177,7 +179,13 @@ sym: $(TARGET).sym
 # Program the device.
 upload: $(TARGET).hex
 	#$(ARDUINORESET)
-	if fuser $(PORT); then echo $(PORT) busy; exit 1; fi
+	#if fuser $(PORT); then echo $(PORT) busy; exit 1; fi
+	case $(PORT) in                                                     \
+		net:*) 	sudo netstat -anp |                                     \
+					sed -n 's,.*$(PORT:net:%=%).* \([0-9]*\)/.*,\1,p' | \
+						xargs -r kill;;                                 \
+		*)	fuser -k $(PORT);;                                          \
+	esac; exit 0
 	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH)
 
 # Convert ELF to COFF for use in debugging / simulating in AVR Studio or VMLAB.
