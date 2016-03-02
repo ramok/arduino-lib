@@ -110,6 +110,9 @@ OPT = s
 # Place -D or -U options here
 CDEFS 	= -DF_CPU=$(F_CPU)
 CXXDEFS = -DF_CPU=$(F_CPU)
+# enable UART input handling
+#CDEFS   = -DF_CPU=$(F_CPU) -DUART_INPUT
+#CXXDEFS = -DF_CPU=$(F_CPU) -DUART_INPUT
 
 # Place -I options here
 CINCS 	+= -I$(ARDUINO_INC_PATH)
@@ -230,7 +233,7 @@ $(TARGET).elf: $(OBJ) $(ARDUINO_LIB).a
 	$(CC) $(ALL_CFLAGS) $(OBJ) --output $@ $(LDFLAGS) -l$(ARDUINO_LIB)
 
 $(ARDUINO_LIB).a: lib/arduino
-	make ARCH=$(ARCH) -C lib/arduino
+	PROJECT_CFLAGS="$(CXXDEFS)" make ARCH=$(ARCH) -C lib/arduino
 
 lib/arduino:
 	mkdir -p lib
