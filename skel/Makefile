@@ -55,6 +55,7 @@ ARCH = nano
 
 # We are building using arduino library. Which normally should be in the lib/arduino
 # subdirectory of our project.
+AVR_LIBC_INC_PATH = /usr/lib/avr/include
 ARDUINO_INC_PATH = lib/arduino/include
 ARDUINO_LIB_PATH = lib/arduino/build/$(ARCH)
 ARDUINO_LIB = arduino
@@ -256,8 +257,25 @@ DEPDIR = .dep
 # Include the dependency files.
 -include $(shell mkdir $(DEPDIR) 2>/dev/null) $(wildcard $(DEPDIR)/*)
 
+cscope:
+	find . $(AVR_LIBC_INC_PATH) -type f -iregex '^.*\.\([chly]\|[ch]pp\|[ch]xx\|C\|cc\)' > cscope.files
+	cscope -b
+
+cscope-clean:
+	rm -rf cscope*
+
+ctags:
+	ctags -R
+
+ctags-clean:
+	rm -rf tags
+
+tags: cscope ctags
+
+tags-clean: cscope-clean ctags-clean
+
 # Target: clean project.
-clean:
+clean: tags-clean
 	$(REMOVE) $(TARGET).hex $(TARGET).eep $(TARGET).cof $(TARGET).elf \
 	$(TARGET).map $(TARGET).sym $(TARGET).lss \
 	$(OBJ) $(LST) $(SRC:.c=.s) $(SRC:.c=.d) $(CXXSRC:.cpp=.s) $(CXXSRC:.cpp=.d)
