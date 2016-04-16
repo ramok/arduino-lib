@@ -84,16 +84,24 @@ CXXFLAGS = $(CFLAGS)
 
 all: $(TARGET)
 
-new-project: $(DESTDIR)/.git $(DESTDIR)/lib/arduino
+new-project: $(DESTDIR)/.git $(DESTDIR)/lib/arduino bootloaders $(SUBMODULES)
 	@printf "\n\n==============================================\n"
 	@printf "Read README.developer\n"
 	@printf "To start work do:\ncd $(DESTDIR)\nmake\n"
+
+$(SUBMODULES):
+	@echo added $@
+
+bootloaders: $(DESTDIR)/contrib/bootloaders
+
+canopen: $(DESTDIR)/lib/canopen
 
 $(DESTDIR)/.git:
 	@if [ -z "$(DESTDIR)" ]; then printf 'run:\n\tmake new-project ARCH=<arch> DESTDIR=/dir/to/new-project\n'; exit 1; fi
 	mkdir -p $(DESTDIR)
 	cp skel/* skel/.??* $(DESTDIR)
 	sed -i -e 's/^ARCH.*/ARCH = $(ARCH)/' $(DESTDIR)/Makefile
+	sed -i -e 's/^SUBMODULES =.*/SUBMODULES = $(SUBMODULES)/' $(DESTDIR)/Makefile
 	cd $(DESTDIR) && 				 \
 	git init . && 					 \
 	git add * .??* && 				 \
@@ -101,8 +109,19 @@ $(DESTDIR)/.git:
 
 $(DESTDIR)/lib/arduino:
 	cd $(DESTDIR) && mkdir -p lib && \
-	git submodule add ssh://lab.evologics.de/var/cache/git/arduino-lib.git lib/arduino && \
+	git submodule add ssh://lab.evologics.de/var/lib/git/arduino-lib.git lib/arduino && \
 	git commit -m 'add submodule arduino-lib'
+
+$(DESTDIR)/contrib/bootloaders:
+	cd $(DESTDIR) && mkdir -p contrib && \
+	git submodule add ssh://lab.evologics.de/var/lib/git/bootloaders.git contrib/bootloaders && \
+	git commit -m 'add submodule bootloaders'
+
+$(DESTDIR)/lib/canopen:
+	cd $(DESTDIR) && mkdir -p lib && \
+	git submodule add ssh://lab.evologics.de/var/lib/git/libcanopen.git lib/canopen && \
+	git commit -m 'add submodule arduino-lib'
+
 
 $(TARGET): $(OBJS)
 	$(AR) $(ARFLAGS) $(TARGET) $(OBJS)

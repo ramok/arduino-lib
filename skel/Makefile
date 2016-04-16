@@ -47,6 +47,8 @@
 #
 # $Id$
 
+PDO_NUM=4
+SUBMODULES =
 # The port Arduino is connected to.
 PORT = /dev/ttyUSB0
 
@@ -59,6 +61,11 @@ AVR_LIBC_INC_PATH = /usr/lib/avr/include
 ARDUINO_INC_PATH = lib/arduino/include
 ARDUINO_LIB_PATH = lib/arduino/build/$(ARCH)
 ARDUINO_LIB = arduino
+
+SUBMODULES_DIRS = $(addprefix lib/, $(SUBMODULES))
+SUBMODULES_A = $(addsuffix .a, $(addprefix lib, $(SUBMODULES)))
+SUBMODULES_L = $(addprefix -l, $(SUBMODULES))
+SUBMODULES_LL = $(addsuffix /build/$(ARCH), $(addprefix -Llib/, $(SUBMODULES)))
 
 # We need to specify path to the Arduino-compatible avrdude, which supports auto-reset feature.
 AVRDUDEPATH = /usr/bin
@@ -172,7 +179,12 @@ ALL_ASFLAGS = -mmcu=$(MCU) -I. -x assembler-with-cpp $(ASFLAGS)
 # Default target.
 all: .git $(ARDUINO_LIB).a build
 
-build: elf hex
+build: submodules elf hex
+
+submodules: lib/arduino $(SUBMODULES_DIRS)
+	PROJECT_CFLAGS="$(CXXDEFS)" make ARCH=$(ARCH) -C lib/arduino
+	[ -d lib/canopen ] && PROJECT_CFLAGS="$(CXXDEFS)" make ARCH=$(ARCH) PDO_NUM=$(PDO_NUM) -C lib/canopen || exit 0
+	[ -d contrib/bootloaders ] && PROJECT_CFLAGS="$(CXXDEFS)" make atmega328 -C contrib/bootloaders/arduino || exit 0
 
 elf: $(TARGET).elf
 hex: $(TARGET).hex
@@ -229,15 +241,28 @@ extcoff: $(TARGET).elf
 	git commit -m init
 
 # Link: create ELF output file from object files.
-$(TARGET).elf: $(OBJ) $(ARDUINO_LIB).a
-	$(CC) $(ALL_CFLAGS) $(OBJ) --output $@ $(LDFLAGS) -l$(ARDUINO_LIB)
+$(TARGET).elf: $(OBJ) $(ARDUINO_LIB).a $(SUBMODULES_A)
+	$(CC) $(ALL_CFLAGS) $(OBJ) --output $@ $(LDFLAGS) $(SUBMODULES_LL) $(SUBMODULES_L) -l$(ARDUINO_LIB)
 
-$(ARDUINO_LIB).a: lib/arduino
-	PROJECT_CFLAGS="$(CXXDEFS)" make ARCH=$(ARCH) -C lib/arduino
+$(ARDUINO_LIB).a $(SUBMODULES_A):
 
 lib/arduino:
 	mkdir -p lib
-	cd lib; git submodule add ssh://lab.evologics.de/var/cache/git/arduino-lib.git arduino
+	git submodule add ssh://lab.evologics.de/var/lib/git/arduino-lib.git lib/arduino || exit 0
+	git submodule init
+	git submodule update
+
+contrib/bootloaders:
+	mkdir -p contrib
+	git submodule add -b master ssh://lab.evologics.de/var/lib/git/bootloaders.git contrib/bootloaders || exit 0
+	git submodule init
+	git submodule update
+
+lib/canopen:
+	mkdir -p lib
+	git submodule add -b master ssh://lab.evologics.de/var/lib/git/libcanopen.git lib/canopen || exit 0
+	git submodule init
+	git submodule update
 
 # Compile: create object files from C++ source files.
 .cpp.o:
@@ -284,5 +309,7 @@ clean: tags-clean
 	$(OBJ) $(LST) $(SRC:.c=.s) $(SRC:.c=.d) $(CXXSRC:.cpp=.s) $(CXXSRC:.cpp=.d)
 	$(REMOVE_DIR) $(DEPDIR)
 	make ARCH=$(ARCH) -C lib/arduino clean
+	make ARCH=$(ARCH) -C contrib/bootloaders/arduino clean
+	for D in $(SUBMODULES_DIRS); do make ARCH=$(ARCH) -C $$D clean; done
 
 .PHONY:	all build elf hex eep lss sym program coff extcoff clean
