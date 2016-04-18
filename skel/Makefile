@@ -49,11 +49,16 @@
 
 PDO_NUM=4
 SUBMODULES =
-# The port Arduino is connected to.
-PORT = /dev/ttyUSB0
 
 # Arduino platform.
 ARCH = nano
+
+# The port Arduino is connected to.
+ifeq ($(ARCH), mega2560)
+PORT = /dev/ttyACM0
+else
+PORT = /dev/ttyUSB0
+endif
 
 # We are building using arduino library. Which normally should be in the lib/arduino
 # subdirectory of our project.
@@ -95,6 +100,8 @@ else ifeq ($(ARCH),uno)
 MCU = atmega328p
 else ifeq ($(ARCH), mega)
 MCU = atmega1280
+else ifeq ($(ARCH), mega2560)
+MCU = atmega2560
 else
 $(error Unknown Arduino board: $(ARCH))
 endif
@@ -143,11 +150,18 @@ CXXFLAGS = $(CDEFS) $(CINCS) $(CLIBS) -O$(OPT)
 LDFLAGS =
 
 # Programming support using avrdude. Settings and variables.
-AVRDUDE_PROGRAMMER = arduino
 AVRDUDE_PORT = $(PORT)
 AVRDUDE_WRITE_FLASH = -U flash:w:$(TARGET).hex
+
+ifeq ($(ARCH), mega2560)
+AVRDUDE_PROGRAMMER = wiring
+AVRDUDE_FLAGS = -v -p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER) \
+  -b $(UPLOAD_RATE) -C $(AVRDUDECONF) -D
+else
+AVRDUDE_PROGRAMMER = arduino
 AVRDUDE_FLAGS = -v -p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER) \
   -b $(UPLOAD_RATE) -C $(AVRDUDECONF)
+endif
 
 # Program settings
 CC = avr-gcc
