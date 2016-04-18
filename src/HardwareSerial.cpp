@@ -64,25 +64,25 @@ inline void store_char(unsigned char c, ring_buffer *rx_buffer)
 
 #if defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
 
-SIGNAL(SIG_USART0_RECV)
+SIGNAL(USART0_RX_vect)
 {
   unsigned char c = UDR0;
   store_char(c, &rx_buffer);
 }
 
-SIGNAL(SIG_USART1_RECV)
+SIGNAL(USART1_RX_vect)
 {
   unsigned char c = UDR1;
   store_char(c, &rx_buffer1);
 }
 
-SIGNAL(SIG_USART2_RECV)
+SIGNAL(USART2_RX_vect)
 {
   unsigned char c = UDR2;
   store_char(c, &rx_buffer2);
 }
 
-SIGNAL(SIG_USART3_RECV)
+SIGNAL(USART3_RX_vect)
 {
   unsigned char c = UDR3;
   store_char(c, &rx_buffer3);
