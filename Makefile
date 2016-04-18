@@ -57,9 +57,11 @@ else ifeq ($(ARCH),uno)
 MCU = atmega328p
 else ifeq ($(ARCH),mega)
 MCU = atmega1280
+else ifeq ($(ARCH),mega2560)
+MCU = atmega2560
 else ifeq ($(strip $(ARCH)),)
-$(error Please specify for which Arduino board you build the library, for example ARCH=nano)	
-else 
+$(error Please specify for which Arduino board you build the library, for example ARCH=nano)
+else
 $(error Unknown Arduino board: $(ARCH))
 endif
 
