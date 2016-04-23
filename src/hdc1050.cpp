@@ -11,6 +11,7 @@
 HDC1050::HDC1050()
 {
 	configReg = 0x10; //POR default
+    start_measure = 0;
 }
 
 void HDC1050::readRegister(byte regAddr, byte numOfBytes)
@@ -126,3 +127,56 @@ void HDC1050::getTemperatureHumidity(int8_t &t, uint8_t &h)
 	h = (uint8_t)((float)(hh << 8 | hl) * 100.0 / 65536.0);
 }
 
+int HDC1050::asyncPollTemperatureHumidity(uint32_t period, int8_t &t, uint8_t &h)
+{
+    static uint8_t  state = 0;
+    static uint32_t request_timestamp = 0;
+    static uint8_t  request_size = 4;
+
+    switch (state) {
+        case 0:
+            if (request_timestamp == 0 || (millis() - request_timestamp) > period) {
+                Wire.beginTransmission(Addr);
+                Wire.send(REG_Temperature);
+                Wire.endTransmission();
+
+                start_measure     = millis();
+                request_timestamp = millis();
+                state = 1;
+            }
+
+        case 1:
+            if (start_measure == 0)
+                return 0;
+
+            if (millis() - start_measure < 50)
+                return 0;
+
+            start_measure = 0;
+            Wire.requestFrom(Addr, request_size);
+            state = 2;
+
+            /* FALLTHROUGH */
+        case 2:
+            if (!Wire.available())
+                return 0;
+
+            for (int i = 0; i < request_size; i++) {
+                buf[i] = Wire.receive();
+            }
+
+            unsigned int th, tl, hh, hl;
+
+            th = buf[0];
+            tl = buf[1];
+            hh = buf[2];
+            hl = buf[3];
+
+            t =  (int8_t)((float)(th << 8 | tl) * 165.0 / 65536.0 - 40.0);
+            h = (uint8_t)((float)(hh << 8 | hl) * 100.0 / 65536.0);
+
+            state = 0;
+    }
+
+    return 1;
+}

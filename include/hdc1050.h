@@ -10,6 +10,8 @@
 #include <arduino.h>
 
 class HDC1050 {
+    unsigned long start_measure;
+
 public:
 	static const byte Addr = 0x40;
 
@@ -48,6 +50,11 @@ public:
     void getTemperatureHumidity(int8_t &t, uint8_t &h);
 	void updateConfigRegister();
 	void readRegister(byte regAddr, byte numOfBytes);
+
+    /**
+     * @return 0 - no data, 1 - data is ready
+     */
+    int asyncPollTemperatureHumidity(uint32_t period, int8_t &t, uint8_t &h);
 
 	byte configReg; //higher 8 bits of the configuration register
 	byte buf[4];		
