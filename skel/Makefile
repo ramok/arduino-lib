@@ -127,6 +127,7 @@ CXXDEFS = -DF_CPU=$(F_CPU)
 # enable UART input handling
 #CDEFS   = -DF_CPU=$(F_CPU) -DUART_INPUT
 #CXXDEFS = -DF_CPU=$(F_CPU) -DUART_INPUT
+CXXDEFS += -DLOGGER
 
 # Place -I options here
 CINCS 	+= -I$(ARDUINO_INC_PATH)
@@ -207,7 +208,7 @@ lss: $(TARGET).lss
 sym: $(TARGET).sym
 
 # Program the device.
-upload: $(TARGET).hex
+upload: build $(TARGET).hex
 	#$(ARDUINORESET)
 	#if fuser $(PORT); then echo $(PORT) busy; exit 1; fi
 	case $(PORT) in                                                     \
