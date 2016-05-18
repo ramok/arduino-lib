@@ -47,11 +47,18 @@
 #
 # $Id$
 
-# The port Arduino is connected to.
-PORT = /dev/ttyUSB0
+PDO_NUM=4
+SUBMODULES =
 
 # Arduino platform.
 ARCH = nano
+
+# The port Arduino is connected to.
+ifeq ($(ARCH), mega2560)
+PORT = /dev/ttyACM0
+else
+PORT = /dev/ttyUSB0
+endif
 
 # We are building using arduino library. Which normally should be in the lib/arduino
 # subdirectory of our project.
@@ -59,6 +66,11 @@ AVR_LIBC_INC_PATH = /usr/lib/avr/include
 ARDUINO_INC_PATH = lib/arduino/include
 ARDUINO_LIB_PATH = lib/arduino/build/$(ARCH)
 ARDUINO_LIB = arduino
+
+SUBMODULES_DIRS = $(addprefix lib/, $(SUBMODULES))
+SUBMODULES_A = $(addsuffix .a, $(addprefix lib, $(SUBMODULES)))
+SUBMODULES_L = $(addprefix -l, $(SUBMODULES))
+SUBMODULES_LL = $(addsuffix /build/$(ARCH), $(addprefix -Llib/, $(SUBMODULES)))
 
 # We need to specify path to the Arduino-compatible avrdude, which supports auto-reset feature.
 AVRDUDEPATH = /usr/bin
@@ -88,6 +100,8 @@ else ifeq ($(ARCH),uno)
 MCU = atmega328p
 else ifeq ($(ARCH), mega)
 MCU = atmega1280
+else ifeq ($(ARCH), mega2560)
+MCU = atmega2560
 else
 $(error Unknown Arduino board: $(ARCH))
 endif
@@ -113,6 +127,7 @@ CXXDEFS = -DF_CPU=$(F_CPU)
 # enable UART input handling
 #CDEFS   = -DF_CPU=$(F_CPU) -DUART_INPUT
 #CXXDEFS = -DF_CPU=$(F_CPU) -DUART_INPUT
+CXXDEFS += -DLOGGER
 
 # Place -I options here
 CINCS 	+= -I$(ARDUINO_INC_PATH)
@@ -136,11 +151,18 @@ CXXFLAGS = $(CDEFS) $(CINCS) $(CLIBS) -O$(OPT)
 LDFLAGS =
 
 # Programming support using avrdude. Settings and variables.
-AVRDUDE_PROGRAMMER = arduino
 AVRDUDE_PORT = $(PORT)
 AVRDUDE_WRITE_FLASH = -U flash:w:$(TARGET).hex
+
+ifeq ($(ARCH), mega2560)
+AVRDUDE_PROGRAMMER = wiring
+AVRDUDE_FLAGS = -v -p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER) \
+  -b $(UPLOAD_RATE) -C $(AVRDUDECONF) -D
+else
+AVRDUDE_PROGRAMMER = arduino
 AVRDUDE_FLAGS = -v -p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER) \
   -b $(UPLOAD_RATE) -C $(AVRDUDECONF)
+endif
 
 # Program settings
 CC = avr-gcc
@@ -172,7 +194,12 @@ ALL_ASFLAGS = -mmcu=$(MCU) -I. -x assembler-with-cpp $(ASFLAGS)
 # Default target.
 all: .git $(ARDUINO_LIB).a build
 
-build: elf hex
+build: submodules elf hex
+
+submodules: lib/arduino $(SUBMODULES_DIRS)
+	PROJECT_CFLAGS="$(CXXDEFS)" make ARCH=$(ARCH) -C lib/arduino
+	[ -d lib/canopen ] && PROJECT_CFLAGS="$(CXXDEFS)" make ARCH=$(ARCH) PDO_NUM=$(PDO_NUM) -C lib/canopen || exit 0
+	[ -d contrib/bootloaders ] && PROJECT_CFLAGS="$(CXXDEFS)" make atmega328 -C contrib/bootloaders/arduino || exit 0
 
 elf: $(TARGET).elf
 hex: $(TARGET).hex
@@ -181,7 +208,7 @@ lss: $(TARGET).lss
 sym: $(TARGET).sym
 
 # Program the device.
-upload: $(TARGET).hex
+upload: build $(TARGET).hex
 	#$(ARDUINORESET)
 	#if fuser $(PORT); then echo $(PORT) busy; exit 1; fi
 	case $(PORT) in                                                     \
@@ -229,15 +256,28 @@ extcoff: $(TARGET).elf
 	git commit -m init
 
 # Link: create ELF output file from object files.
-$(TARGET).elf: $(OBJ) $(ARDUINO_LIB).a
-	$(CC) $(ALL_CFLAGS) $(OBJ) --output $@ $(LDFLAGS) -l$(ARDUINO_LIB)
+$(TARGET).elf: $(OBJ) $(ARDUINO_LIB).a $(SUBMODULES_A)
+	$(CC) $(ALL_CFLAGS) $(OBJ) --output $@ $(LDFLAGS) $(SUBMODULES_LL) $(SUBMODULES_L) -l$(ARDUINO_LIB)
 
-$(ARDUINO_LIB).a: lib/arduino
-	PROJECT_CFLAGS="$(CXXDEFS)" make ARCH=$(ARCH) -C lib/arduino
+$(ARDUINO_LIB).a $(SUBMODULES_A):
 
 lib/arduino:
 	mkdir -p lib
-	cd lib; git submodule add ssh://lab.evologics.de/var/cache/git/arduino-lib.git arduino
+	git submodule add ssh://lab.evologics.de/var/lib/git/arduino-lib.git lib/arduino || exit 0
+	git submodule init
+	git submodule update
+
+contrib/bootloaders:
+	mkdir -p contrib
+	git submodule add -b master ssh://lab.evologics.de/var/lib/git/bootloaders.git contrib/bootloaders || exit 0
+	git submodule init
+	git submodule update
+
+lib/canopen:
+	mkdir -p lib
+	git submodule add -b master ssh://lab.evologics.de/var/lib/git/libcanopen.git lib/canopen || exit 0
+	git submodule init
+	git submodule update
 
 # Compile: create object files from C++ source files.
 .cpp.o:
@@ -284,5 +324,7 @@ clean: tags-clean
 	$(OBJ) $(LST) $(SRC:.c=.s) $(SRC:.c=.d) $(CXXSRC:.cpp=.s) $(CXXSRC:.cpp=.d)
 	$(REMOVE_DIR) $(DEPDIR)
 	make ARCH=$(ARCH) -C lib/arduino clean
+	make ARCH=$(ARCH) -C contrib/bootloaders/arduino clean
+	for D in $(SUBMODULES_DIRS); do make ARCH=$(ARCH) -C $$D clean; done
 
 .PHONY:	all build elf hex eep lss sym program coff extcoff clean
