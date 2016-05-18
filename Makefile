@@ -111,25 +111,18 @@ $(DESTDIR)/.git:
 
 $(DESTDIR)/lib/arduino:
 	cd $(DESTDIR) && mkdir -p lib && \
-<<<<<<< HEAD
-	git submodule add ://github.com/ramok/arduino-lib.git lib/arduino && 	\
-	git submodule init && 							\
-	git submodule update && 						\
-	git commit -am 'add submodule arduino-lib'
-=======
-	git submodule add ssh://lab.evologics.de/var/lib/git/arduino-lib.git lib/arduino && \
+	git submodule add https://github.com/ramok/arduino-lib.git lib/arduino && 	\
 	git commit -m 'add submodule arduino-lib'
 
 $(DESTDIR)/contrib/bootloaders:
 	cd $(DESTDIR) && mkdir -p contrib && \
-	git submodule add ssh://lab.evologics.de/var/lib/git/bootloaders.git contrib/bootloaders && \
+	git submodule add https://github.com/ramok/bootloaders.git contrib/bootloaders && \
 	git commit -m 'add submodule bootloaders'
 
 $(DESTDIR)/lib/canopen:
 	cd $(DESTDIR) && mkdir -p lib && \
-	git submodule add ssh://lab.evologics.de/var/lib/git/libcanopen.git lib/canopen && \
+	git submodule add https://github.com/ramok/libcanopen.git lib/canopen && \
 	git commit -m 'add submodule arduino-lib'
->>>>>>> 7495d2721e358b6ca3b40a0dd6d55e2574f92983
 
 
 $(TARGET): $(OBJS)
