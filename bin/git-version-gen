@@ -5,8 +5,10 @@ case "$1" in
     sonobot) PROD_ID=0x5090B070UL;;
     0x[0-9A-Fa-f]*UL) PROD_ID=$1 ;;
     *)
-        echo Usage: $(basename $0) product-id your/conf.h
-        echo "ERROR: wrong param \"$1\". need param boss or sonobot or like 0x00000000UL" >&2
+        echo Usage: `basename $0` product-id your/conf.h
+        PARAM=$(sed -n \
+            '/case "\$1" in/,/esac/{/\*)/d;s/^  *\([^)]*\)).*/\1/;T;H};${g;s/\n/"/;s/\n/" or "/g;s/$/"/;p}' $0)
+        echo "ERROR: wrong param \"$1\". need param $PARAM" >&2
         exit 1;;
 esac
 
