@@ -194,6 +194,18 @@ ALL_ASFLAGS = -mmcu=$(MCU) -I. -x assembler-with-cpp $(ASFLAGS)
 # Default target.
 all: .git $(ARDUINO_LIB).a build
 
+.PHONY:	config
+config: config.h.new
+	if test ! -e config.h; then \
+		mv config.h.new config.h; \
+	else \
+		cmp config.h.new config.h 2> /dev/null || mv config.h.new config.h; \
+	fi
+
+config.h.new:
+	lib/arduino/bin/git-version-gen $(PROD_ID) config.h.new
+	sed -i '/#endif/s//#define NODE_ID $(NODE_ID)\n&/' config.h.new
+
 build: submodules elf hex
 
 submodules: lib/arduino $(SUBMODULES_DIRS)

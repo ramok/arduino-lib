@@ -1,0 +1,28 @@
+#!/bin/sh
+
+case "$1" in
+    boss)    PROD_ID=0xB0550000UL;;
+    sonobot) PROD_ID=0x5090B070UL;;
+    0x[0-9A-Fa-f]*UL) PROD_ID=$1 ;;
+    *)
+        echo Usage: `basename $0` product-id your/conf.h
+        PARAM=$(sed -n \
+            '/case "\$1" in/,/esac/{/\*)/d;s/^  *\([^)]*\)).*/\1/;T;H};${g;s/\n/"/;s/\n/" or "/g;s/$/"/;p}' $0)
+        echo "ERROR: wrong param \"$1\". need param $PARAM" >&2
+        exit 1;;
+esac
+
+REV_NUM=$(git rev-parse HEAD | sed 's/\(.\{8\}\).*/0x\1UL/')
+
+cat << __END > $2.new
+#ifndef VER_CONF
+#define VER_CONF
+
+#define PRODUCT_ID $PROD_ID
+#define REV_NUM_ID $REV_NUM
+
+#endif
+__END
+
+cmp $2.new $2 2> /dev/null && rm $2.new || mv $2.new $2
+
