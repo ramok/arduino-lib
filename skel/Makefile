@@ -47,8 +47,15 @@
 #
 # $Id$
 
-PDO_NUM=4
+#WITH_CAN=1
 SUBMODULES =
+
+ifeq ($(WITH_CAN), 1)
+PROD_ID=0x12345678
+NODE_ID=0x1
+PDO_NUM=4
+SUBMODULES += canopen
+endif
 
 # Arduino platform.
 ARCH = nano
@@ -124,10 +131,12 @@ OPT = s
 # Place -D or -U options here
 CDEFS 	= -DF_CPU=$(F_CPU)
 CXXDEFS = -DF_CPU=$(F_CPU)
-# enable UART input handling
-#CDEFS   = -DF_CPU=$(F_CPU) -DUART_INPUT
-#CXXDEFS = -DF_CPU=$(F_CPU) -DUART_INPUT
+# enable logger()
+CDEFS   += -DLOGGER
 CXXDEFS += -DLOGGER
+# enable UART input handling
+#CDEFS   += -DUART_INPUT
+#CXXDEFS += -DUART_INPUT
 
 # Place -I options here
 CINCS 	+= -I$(ARDUINO_INC_PATH)
@@ -203,10 +212,15 @@ config: config.h.new
 	fi
 
 config.h.new:
+	if [ $(PROD_ID) = "0x12345678" ]; then \
+		echo Need setup Product ID >&2; \
+		lib/arduino/bin/git-version-gen;\
+		exit 1; \
+	fi
 	lib/arduino/bin/git-version-gen $(PROD_ID) config.h.new
 	sed -i '/#endif/s//#define NODE_ID $(NODE_ID)\n&/' config.h.new
 
-build: submodules elf hex
+build: config submodules elf hex
 
 submodules: lib/arduino $(SUBMODULES_DIRS)
 	PROJECT_CFLAGS="$(CXXDEFS)" make ARCH=$(ARCH) -C lib/arduino
