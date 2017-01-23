@@ -75,9 +75,10 @@ ARDUINO_LIB_PATH = lib/arduino/build/$(ARCH)
 ARDUINO_LIB = arduino
 
 SUBMODULES_DIRS = $(addprefix lib/, $(SUBMODULES))
-SUBMODULES_A = $(addsuffix .a, $(addprefix lib, $(SUBMODULES)))
-SUBMODULES_L = $(addprefix -l, $(SUBMODULES))
-SUBMODULES_LL = $(addsuffix /build/$(ARCH), $(addprefix -Llib/, $(SUBMODULES)))
+SUBMODULES_A 	= $(addsuffix .a, $(addprefix lib, $(SUBMODULES)))
+SUBMODULES_L 	= $(addprefix -l, $(SUBMODULES))
+SUBMODULES_LL 	= $(addsuffix /build/$(ARCH), $(addprefix -Llib/, $(SUBMODULES)))
+SUBMODULES_INC  = $(addsuffix /include, $(addprefix -Ilib/, $(SUBMODULES)))
 
 # We need to specify path to the Arduino-compatible avrdude, which supports auto-reset feature.
 AVRDUDEPATH = /usr/bin
@@ -139,9 +140,10 @@ CXXDEFS += -DLOGGER
 #CXXDEFS += -DUART_INPUT
 
 # Place -I options here
-CINCS 	+= -I$(ARDUINO_INC_PATH)
-CXXINCS += -I$(ARDUINO_INC_PATH)
-CLIBS 	+= -L$(ARDUINO_LIB_PATH)
+CINCS 	+= -I$(ARDUINO_INC_PATH) $(SUBMODULES_INC)
+CXXINCS += -I$(ARDUINO_INC_PATH) $(SUBMODULES_INC)
+CLIBS 	+= -L$(ARDUINO_LIB_PATH) $(SUBMODULES_LL)
+LIBS	+= -l$(ARDUINO_LIB) $(SUBMODULES_L)
 
 # Compiler flag to set the C Standard level.
 # c89   - "ANSI" C
@@ -218,7 +220,7 @@ config.h.new:
 		exit 1; \
 	fi
 	lib/arduino/bin/git-version-gen $(PROD_ID) config.h.new
-	sed -i '/#endif/s//#define NODE_ID $(NODE_ID)\n&/' config.h.new
+	[ -z "$(CAN_NODE_ID)" ] || sed -i '/#endif/s//#define NODE_ID $(CAN_NODE_ID)\n&/' config.h.new
 
 build: config submodules elf hex
 
@@ -283,7 +285,7 @@ extcoff: $(TARGET).elf
 
 # Link: create ELF output file from object files.
 $(TARGET).elf: $(OBJ) $(ARDUINO_LIB).a $(SUBMODULES_A)
-	$(CC) $(ALL_CFLAGS) $(OBJ) --output $@ $(LDFLAGS) $(SUBMODULES_LL) $(SUBMODULES_L) -l$(ARDUINO_LIB)
+	$(CC) $(ALL_CFLAGS) $(OBJ) --output $@ $(LDFLAGS) $(LIBS)
 
 $(ARDUINO_LIB).a $(SUBMODULES_A):
 
