@@ -14,6 +14,10 @@ static int uart_getchar(FILE *stream)
     return Serial.read();
 }
 
+int uart_char_avail() {
+    return Serial.available();
+}
+
 void uart_handle(void)
 {
     while (Serial.available()) {
@@ -43,6 +47,15 @@ int uart_get_line(char *buf)
 }
 #else /* UART_INPUT */
 static int (*uart_getchar)(FILE *stream) = NULL;
+
+int uart_char_avail() {
+    return 0;
+}
+
+int uart_get_line(char *buf) {
+    buf = buf;
+    return 0;
+}
 
 void uart_handle()
 {
