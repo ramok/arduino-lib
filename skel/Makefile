@@ -352,7 +352,7 @@ clean: tags-clean
 	$(OBJ) $(LST) $(SRC:.c=.s) $(SRC:.c=.d) $(CXXSRC:.cpp=.s) $(CXXSRC:.cpp=.d)
 	$(REMOVE_DIR) $(DEPDIR)
 	make ARCH=$(ARCH) -C lib/arduino clean
-	make ARCH=$(ARCH) -C contrib/bootloaders/arduino clean
+	[ -d contrib/bootloaders/arduino ] && make ARCH=$(ARCH) -C contrib/bootloaders/arduino clean || exit 0
 	for D in $(SUBMODULES_DIRS); do make ARCH=$(ARCH) -C $$D clean; done
 
 .PHONY:	all build elf hex eep lss sym program coff extcoff clean
