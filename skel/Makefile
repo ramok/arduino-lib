@@ -50,8 +50,8 @@
 #WITH_CAN=1
 SUBMODULES =
 
+PROD_ID=0x12345678UL
 ifeq ($(WITH_CAN), 1)
-PROD_ID=0x12345678
 NODE_ID=0x1
 PDO_NUM=4
 SUBMODULES += canopen
@@ -214,8 +214,8 @@ config: config.h.new
 	fi
 
 config.h.new:
-	if [ $(PROD_ID) = "0x12345678" ]; then \
-		echo Need setup Product ID >&2; \
+	if [ -z "$(PROD_ID)" -o "$(PROD_ID)" = "0x12345678" ]; then \
+		echo Need setup PROD_ID in Makefile >&2; \
 		lib/arduino/bin/git-version-gen;\
 		exit 1; \
 	fi
