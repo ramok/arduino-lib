@@ -70,6 +70,20 @@ endif
 # netcat for console port redirecting
 NETCAT = rlwrap -S "$$PORT> " nc
 
+##### printf version ######
+# From man 3avr printf
+#
+# Default vfprintf() implements all the mentioned functionality except floating point conversions.
+#CFLAGS_PRINTF =
+
+# A minimized version of vfprintf() is available that only implements the very basic integer and
+# string conversion facilities, but only the # additional option can be specified using conversion
+# flags (these flags are parsed correctly from the format specification, but then simply ignored).
+#CFLAGS_PRINTF = -Wl,-u,vfprintf -lprintf_min
+
+# If the full functionality including the floating point conversions is required, the following options should be used:
+CFLAGS_PRINTF = -Wl,-u,vfprintf -lprintf_flt -lm
+
 # We are building using arduino library. Which normally should be in the lib/arduino
 # subdirectory of our project.
 AVR_LIBC_INC_PATH = /usr/lib/avr/include
@@ -159,7 +173,7 @@ CWARN = -Wall -Wstrict-prototypes
 CTUNING = -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums
 #CEXTRA = -Wa,-adhlns=$(<:.c=.lst)
 
-CFLAGS = $(CDEBUG) $(CDEFS) $(CINCS) $(CLIBS) -O$(OPT) $(CWARN) $(CSTANDARD) $(CEXTRA)
+CFLAGS = $(CDEBUG) $(CDEFS) $(CINCS) $(CLIBS) -O$(OPT) $(CWARN) $(CSTANDARD) $(CEXTRA) $(CFLAGS_PRINTF)
 CXXFLAGS = $(CDEFS) $(CINCS) $(CLIBS) -O$(OPT)
 #ASFLAGS = -Wa,-adhlns=$(<:.S=.lst),-gstabs
 LDFLAGS =
