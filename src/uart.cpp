@@ -38,6 +38,7 @@ int uart_get_line(char *buf)
     int rc = 0;
     if (uart_rx_buf_ready) {
         memcpy(buf, uart_rx_buf, uart_rx_buf_len);
+        buf[uart_rx_buf_len] = 0;
         rc = uart_rx_buf_len;
         uart_rx_buf_len = 0;
 
