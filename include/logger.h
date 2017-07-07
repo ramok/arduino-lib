@@ -16,10 +16,21 @@ void logger_init(uint16_t log_level_);
 
 #define logger(level,fmt, ...)            \
     do {                                  \
-        if (level & log_level) {          \
+        if (level & log_level)            \
             printf(fmt, ## __VA_ARGS__);  \
-        }                                 \
-    }while(0)
+    } while(0)
+
+# define logger_dump(level, buf, len)                          \
+    do {                                                       \
+        typeof(len) i;                                         \
+        if (level & log_level) {                               \
+            printf("[%d]{", len);                              \
+            for (i = 0; i < len; i++)                          \
+                printf("%02x ",*((unsigned char *)(buf) + i)); \
+            printf("}");                                       \
+        }                                                      \
+    } while(0)
+
 
 
 extern uint16_t log_level;
