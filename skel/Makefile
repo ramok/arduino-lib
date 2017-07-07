@@ -67,6 +67,9 @@ else
 PORT = /dev/ttyUSB0
 endif
 
+# netcat for console port redirecting
+NETCAT = rlwrap -S "$$PORT> " nc
+
 # We are building using arduino library. Which normally should be in the lib/arduino
 # subdirectory of our project.
 AVR_LIBC_INC_PATH = /usr/lib/avr/include
@@ -246,6 +249,17 @@ upload: build $(TARGET).hex
 		*)	fuser -k $(PORT);;                                          \
 	esac; exit 0
 	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH)
+
+.PHONY:	console
+console:
+	PORT=$(PORT); PORT=$${PORT#*:}; case $(PORT) in  \
+		net:*) while :; do sudo netstat -anp |\
+			grep -q "$$PORT  *ESTABLISHED .*/avrdude" && echo "$$PORT busy by avrdude. press ctrl-c to quit" && sleep 2 && continue;\
+			$(NETCAT) $${PORT%:*} $${PORT#*:}; sleep 2; done;;\
+		*)	while :; do fuser $$PORT  && echo "$$PORT busy by avrdude. press ctrl-c to quit" && sleep 2 && continue;\
+			kermit -cl $$PORT -b 115200;reset;sleep 1;done;; \
+	esac; exit 0
+
 
 # Convert ELF to COFF for use in debugging / simulating in AVR Studio or VMLAB.
 COFFCONVERT=$(OBJCOPY) --debugging \
