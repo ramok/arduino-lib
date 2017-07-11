@@ -170,11 +170,12 @@ LIBS	+= -l$(ARDUINO_LIB) $(SUBMODULES_L)
 CSTANDARD = -std=gnu99
 CDEBUG = -g$(DEBUG)
 CWARN = -Wall -Wstrict-prototypes
+CXXWARN = -Wall
 CTUNING = -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums
 #CEXTRA = -Wa,-adhlns=$(<:.c=.lst)
 
 CFLAGS = $(CDEBUG) $(CDEFS) $(CINCS) $(CLIBS) -O$(OPT) $(CWARN) $(CSTANDARD) $(CEXTRA) $(CFLAGS_PRINTF)
-CXXFLAGS = $(CDEFS) $(CINCS) $(CLIBS) -O$(OPT)
+CXXFLAGS = $(CDEFS) $(CINCS) $(CLIBS) -O$(OPT) $(CXXWARN)
 #ASFLAGS = -Wa,-adhlns=$(<:.S=.lst),-gstabs
 LDFLAGS =
 
