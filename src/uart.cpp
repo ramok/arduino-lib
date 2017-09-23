@@ -14,6 +14,10 @@ static int uart_getchar(FILE *stream)
     return Serial.read();
 }
 
+int uart_char_avail() {
+    return Serial.available();
+}
+
 void uart_handle(void)
 {
     while (Serial.available()) {
@@ -34,6 +38,7 @@ int uart_get_line(char *buf)
     int rc = 0;
     if (uart_rx_buf_ready) {
         memcpy(buf, uart_rx_buf, uart_rx_buf_len);
+        buf[uart_rx_buf_len] = 0;
         rc = uart_rx_buf_len;
         uart_rx_buf_len = 0;
 
@@ -43,6 +48,15 @@ int uart_get_line(char *buf)
 }
 #else /* UART_INPUT */
 static int (*uart_getchar)(FILE *stream) = NULL;
+
+int uart_char_avail() {
+    return 0;
+}
+
+int uart_get_line(char *buf) {
+    buf = buf;
+    return 0;
+}
 
 void uart_handle()
 {
