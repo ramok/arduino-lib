@@ -49,10 +49,22 @@ ClickEncoder::ClickEncoder(uint8_t A, uint8_t B, uint8_t BTN, uint8_t stepsPerNo
     button(Open), steps(stepsPerNotch),
     pinA(A), pinB(B), pinBTN(BTN), pinsActive(active)
 {
+#if defined(ARDUINO) && ARDUINO >= 100
   uint8_t configType = (pinsActive == LOW) ? INPUT_PULLUP : INPUT;
   pinMode(pinA, configType);
   pinMode(pinB, configType);
   pinMode(pinBTN, configType);
+#else
+  pinMode(pinA,   INPUT);
+  pinMode(pinB,   INPUT);
+  pinMode(pinBTN, INPUT);
+  if (pinsActive == LOW) {
+       // turn on pullup resistors
+      digitalWrite(pinA,   HIGH);
+      digitalWrite(pinB,   HIGH);
+      digitalWrite(pinBTN, HIGH);
+  }
+#endif
   
   if (digitalRead(pinA) == pinsActive) {
     last = 3;
