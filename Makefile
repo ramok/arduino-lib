@@ -30,6 +30,7 @@ ARDUINO_LIB_SRC := $(wildcard 					   \
 						src/Adafruit_GFX/*.cpp     \
 						src/Adafruit_GFX/*.c       \
 						src/Adafruit_PCD8544_Nokia_5110_LCD/*.cpp \
+						src/ClickEncoder/*.cpp     \
 						src/*.c                    \
 						src/*.cpp)
 
@@ -52,6 +53,7 @@ ARDUINO_LIB_INC = -Iinclude/EEPROM 				     \
                   -Iinclude/MsTimer2                 \
                   -Iinclude/Adafruit_GFX             \
                   -Iinclude/Adafruit_PCD8544_Nokia_5110_LCD \
+                  -Iinclude/ClickEncoder             \
                   -Iinclude
 
 ifeq ($(ARCH),nano)
