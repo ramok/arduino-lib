@@ -27,6 +27,8 @@ ARDUINO_LIB_SRC := $(wildcard 					   \
 						src/Wire/*.cpp             \
 						src/Wire/utility/*.c       \
 						src/MsTimer2/*.cpp         \
+						src/Adafruit_GFX/*.cpp     \
+						src/Adafruit_GFX/*.c       \
 						src/*.c                    \
 						src/*.cpp)
 
@@ -47,6 +49,7 @@ ARDUINO_LIB_INC = -Iinclude/EEPROM 				     \
                   -Iinclude/Wire                     \
                   -Iinclude/Wire/utility             \
                   -Iinclude/MsTimer2                 \
+                  -Iinclude/Adafruit_GFX             \
                   -Iinclude
 
 ifeq ($(ARCH),nano)
