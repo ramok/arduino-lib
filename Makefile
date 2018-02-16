@@ -29,6 +29,7 @@ ARDUINO_LIB_SRC := $(wildcard 					   \
 						src/MsTimer2/*.cpp         \
 						src/Adafruit_GFX/*.cpp     \
 						src/Adafruit_GFX/*.c       \
+						src/Adafruit_PCD8544_Nokia_5110_LCD/*.cpp \
 						src/*.c                    \
 						src/*.cpp)
 
@@ -50,6 +51,7 @@ ARDUINO_LIB_INC = -Iinclude/EEPROM 				     \
                   -Iinclude/Wire/utility             \
                   -Iinclude/MsTimer2                 \
                   -Iinclude/Adafruit_GFX             \
+                  -Iinclude/Adafruit_PCD8544_Nokia_5110_LCD \
                   -Iinclude
 
 ifeq ($(ARCH),nano)
