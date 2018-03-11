@@ -6,6 +6,8 @@
 #include <uart.h>
 #include <logger.h>
 
+#include <config.h>
+
 #define SERIAL_SPEED     115200
 
 int main()

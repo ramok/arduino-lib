@@ -47,8 +47,15 @@
 #
 # $Id$
 
-PDO_NUM=4
+#WITH_CAN=1
 SUBMODULES =
+
+PROD_ID=0x12345678UL
+ifeq ($(WITH_CAN), 1)
+NODE_ID=0x1
+PDO_NUM=4
+SUBMODULES += canopen
+endif
 
 # Arduino platform.
 ARCH = nano
@@ -60,6 +67,23 @@ else
 PORT = /dev/ttyUSB0
 endif
 
+# netcat for console port redirecting
+NETCAT = rlwrap -S "$$PORT> " nc
+
+##### printf version ######
+# From man 3avr printf
+#
+# Default vfprintf() implements all the mentioned functionality except floating point conversions.
+#CFLAGS_PRINTF =
+
+# A minimized version of vfprintf() is available that only implements the very basic integer and
+# string conversion facilities, but only the # additional option can be specified using conversion
+# flags (these flags are parsed correctly from the format specification, but then simply ignored).
+#CFLAGS_PRINTF = -Wl,-u,vfprintf -lprintf_min
+
+# If the full functionality including the floating point conversions is required, the following options should be used:
+CFLAGS_PRINTF = -Wl,-u,vfprintf -lprintf_flt -lm
+
 # We are building using arduino library. Which normally should be in the lib/arduino
 # subdirectory of our project.
 AVR_LIBC_INC_PATH = /usr/lib/avr/include
@@ -68,9 +92,10 @@ ARDUINO_LIB_PATH = lib/arduino/build/$(ARCH)
 ARDUINO_LIB = arduino
 
 SUBMODULES_DIRS = $(addprefix lib/, $(SUBMODULES))
-SUBMODULES_A = $(addsuffix .a, $(addprefix lib, $(SUBMODULES)))
-SUBMODULES_L = $(addprefix -l, $(SUBMODULES))
-SUBMODULES_LL = $(addsuffix /build/$(ARCH), $(addprefix -Llib/, $(SUBMODULES)))
+SUBMODULES_A 	= $(addsuffix .a, $(addprefix lib, $(SUBMODULES)))
+SUBMODULES_L 	= $(addprefix -l, $(SUBMODULES))
+SUBMODULES_LL 	= $(addsuffix /build/$(ARCH), $(addprefix -Llib/, $(SUBMODULES)))
+SUBMODULES_INC  = $(addsuffix /include, $(addprefix -Ilib/, $(SUBMODULES)))
 
 # We need to specify path to the Arduino-compatible avrdude, which supports auto-reset feature.
 AVRDUDEPATH = /usr/bin
@@ -124,15 +149,18 @@ OPT = s
 # Place -D or -U options here
 CDEFS 	= -DF_CPU=$(F_CPU)
 CXXDEFS = -DF_CPU=$(F_CPU)
-# enable UART input handling
-#CDEFS   = -DF_CPU=$(F_CPU) -DUART_INPUT
-#CXXDEFS = -DF_CPU=$(F_CPU) -DUART_INPUT
+# enable logger()
+CDEFS   += -DLOGGER
 CXXDEFS += -DLOGGER
+# enable UART input handling
+#CDEFS   += -DUART_INPUT
+#CXXDEFS += -DUART_INPUT
 
 # Place -I options here
-CINCS 	+= -I$(ARDUINO_INC_PATH)
-CXXINCS += -I$(ARDUINO_INC_PATH)
-CLIBS 	+= -L$(ARDUINO_LIB_PATH)
+CINCS 	+= -I$(ARDUINO_INC_PATH) $(SUBMODULES_INC)
+CXXINCS += -I$(ARDUINO_INC_PATH) $(SUBMODULES_INC)
+CLIBS 	+= -L$(ARDUINO_LIB_PATH) $(SUBMODULES_LL)
+LIBS	+= -l$(ARDUINO_LIB) $(SUBMODULES_L)
 
 # Compiler flag to set the C Standard level.
 # c89   - "ANSI" C
@@ -142,11 +170,12 @@ CLIBS 	+= -L$(ARDUINO_LIB_PATH)
 CSTANDARD = -std=gnu99
 CDEBUG = -g$(DEBUG)
 CWARN = -Wall -Wstrict-prototypes
+CXXWARN = -Wall
 CTUNING = -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums
 #CEXTRA = -Wa,-adhlns=$(<:.c=.lst)
 
-CFLAGS = $(CDEBUG) $(CDEFS) $(CINCS) $(CLIBS) -O$(OPT) $(CWARN) $(CSTANDARD) $(CEXTRA)
-CXXFLAGS = $(CDEFS) $(CINCS) $(CLIBS) -O$(OPT)
+CFLAGS = $(CDEBUG) $(CDEFS) $(CINCS) $(CLIBS) -O$(OPT) $(CWARN) $(CSTANDARD) $(CEXTRA) $(CFLAGS_PRINTF)
+CXXFLAGS = $(CDEFS) $(CINCS) $(CLIBS) -O$(OPT) $(CXXWARN)
 #ASFLAGS = -Wa,-adhlns=$(<:.S=.lst),-gstabs
 LDFLAGS =
 
@@ -194,7 +223,24 @@ ALL_ASFLAGS = -mmcu=$(MCU) -I. -x assembler-with-cpp $(ASFLAGS)
 # Default target.
 all: .git $(ARDUINO_LIB).a build
 
-build: submodules elf hex
+.PHONY:	config
+config: config.h.new
+	if test ! -e config.h; then \
+		mv config.h.new config.h; \
+	else \
+		cmp config.h.new config.h 2> /dev/null || mv config.h.new config.h; \
+	fi
+
+config.h.new:
+	if [ -z "$(PROD_ID)" -o "$(PROD_ID)" = "0x12345678" ]; then \
+		echo Need setup PROD_ID in Makefile >&2; \
+		lib/arduino/bin/git-version-gen;\
+		exit 1; \
+	fi
+	lib/arduino/bin/git-version-gen $(PROD_ID) config.h.new
+	[ -z "$(CAN_NODE_ID)" ] || sed -i '/#endif/s//#define NODE_ID $(CAN_NODE_ID)\n&/' config.h.new
+
+build: config submodules elf hex
 
 submodules: lib/arduino $(SUBMODULES_DIRS)
 	PROJECT_CFLAGS="$(CXXDEFS)" make ARCH=$(ARCH) -C lib/arduino
@@ -218,6 +264,17 @@ upload: build $(TARGET).hex
 		*)	fuser -k $(PORT);;                                          \
 	esac; exit 0
 	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH)
+
+.PHONY:	console
+console:
+	PORT=$(PORT); PORT=$${PORT#*:}; case $(PORT) in  \
+		net:*) while :; do sudo netstat -anp |\
+			grep -q "$$PORT  *ESTABLISHED .*/avrdude" && echo "$$PORT busy by avrdude. press ctrl-c to quit" && sleep 2 && continue;\
+			$(NETCAT) $${PORT%:*} $${PORT#*:}; sleep 2; done;;\
+		*)	while :; do fuser $$PORT  && echo "$$PORT busy by avrdude. press ctrl-c to quit" && sleep 2 && continue;\
+			kermit -cl $$PORT -b 115200;reset;sleep 1;done;; \
+	esac; exit 0
+
 
 # Convert ELF to COFF for use in debugging / simulating in AVR Studio or VMLAB.
 COFFCONVERT=$(OBJCOPY) --debugging \
@@ -257,7 +314,7 @@ extcoff: $(TARGET).elf
 
 # Link: create ELF output file from object files.
 $(TARGET).elf: $(OBJ) $(ARDUINO_LIB).a $(SUBMODULES_A)
-	$(CC) $(ALL_CFLAGS) $(OBJ) --output $@ $(LDFLAGS) $(SUBMODULES_LL) $(SUBMODULES_L) -l$(ARDUINO_LIB)
+	$(CC) $(ALL_CFLAGS) $(OBJ) --output $@ $(LDFLAGS) $(LIBS)
 
 $(ARDUINO_LIB).a $(SUBMODULES_A):
 
@@ -324,7 +381,7 @@ clean: tags-clean
 	$(OBJ) $(LST) $(SRC:.c=.s) $(SRC:.c=.d) $(CXXSRC:.cpp=.s) $(CXXSRC:.cpp=.d)
 	$(REMOVE_DIR) $(DEPDIR)
 	make ARCH=$(ARCH) -C lib/arduino clean
-	make ARCH=$(ARCH) -C contrib/bootloaders/arduino clean
+	[ -d contrib/bootloaders/arduino ] && make ARCH=$(ARCH) -C contrib/bootloaders/arduino clean || exit 0
 	for D in $(SUBMODULES_DIRS); do make ARCH=$(ARCH) -C $$D clean; done
 
 .PHONY:	all build elf hex eep lss sym program coff extcoff clean

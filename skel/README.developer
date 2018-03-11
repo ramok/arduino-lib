@@ -6,5 +6,9 @@
     ssh $RHOST chown -R :$SHARE_GROUP $RDIR\; chmod -R g+w $RDIR
     git push -u origin master
 
-2. Oneliner to restart kemit after arduino flashing
-    DEV=/dev/ttyUSB0;while :; do kermit -cl $DEV -b 115200;reset;sleep 1;while fuser $DEV;do echo "press ctrl-c to quit";sleep 1;done;sleep 2;done
+2. Connect to console with restart kemit or netcat after arduino flashing.
+   For example:
+
+    make PORT=/dev/ttyUSB1 console
+    or
+    make PORT=net:192.168.42.151:4001 console
