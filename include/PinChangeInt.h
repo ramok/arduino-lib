@@ -128,6 +128,7 @@ Copyright 2010-2014 Michael Schwager (aka, "GreyGnome")
 #include <arduino.h>
 #include <new.h>
 #include <pins_arduino.h>
+#include <wiring_private.h> // cbi and sbi defined here
 
 #undef DEBUG
 
