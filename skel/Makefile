@@ -149,9 +149,11 @@ OPT = s
 # Place -D or -U options here
 CDEFS 	= -DF_CPU=$(F_CPU)
 CXXDEFS = -DF_CPU=$(F_CPU)
+
 # enable logger()
 CDEFS   += -DLOGGER
 CXXDEFS += -DLOGGER
+
 # enable UART input handling
 #CDEFS   += -DUART_INPUT
 #CXXDEFS += -DUART_INPUT
