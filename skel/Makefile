@@ -149,12 +149,18 @@ OPT = s
 # Place -D or -U options here
 CDEFS 	= -DF_CPU=$(F_CPU)
 CXXDEFS = -DF_CPU=$(F_CPU)
+
 # enable logger()
 CDEFS   += -DLOGGER
 CXXDEFS += -DLOGGER
+
 # enable UART input handling
 #CDEFS   += -DUART_INPUT
 #CXXDEFS += -DUART_INPUT
+
+# enable UART input echo (useful for shell-like interface)
+#CDEFS   += -DUART_INPUT_EDIT
+#CXXDEFS += -DUART_INPUT_EDIT
 
 # Place -I options here
 CINCS 	+= -I$(ARDUINO_INC_PATH) $(SUBMODULES_INC)
