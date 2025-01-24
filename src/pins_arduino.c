@@ -358,25 +358,25 @@ const uint8_t PROGMEM digital_pin_to_timer_PGM[] = {
 const uint16_t PROGMEM port_to_mode_PGM[] = {
 	NOT_A_PORT,
 	NOT_A_PORT,
-	&DDRB,
-	&DDRC,
-	&DDRD,
+	(uint16_t)&DDRB,
+	(uint16_t)&DDRC,
+	(uint16_t)&DDRD,
 };
 
 const uint16_t PROGMEM port_to_output_PGM[] = {
 	NOT_A_PORT,
 	NOT_A_PORT,
-	&PORTB,
-	&PORTC,
-	&PORTD,
+	(uint16_t)&PORTB,
+	(uint16_t)&PORTC,
+	(uint16_t)&PORTD,
 };
 
 const uint16_t PROGMEM port_to_input_PGM[] = {
 	NOT_A_PORT,
 	NOT_A_PORT,
-	&PINB,
-	&PINC,
-	&PIND,
+	(uint16_t)&PINB,
+	(uint16_t)&PINC,
+	(uint16_t)&PIND,
 };
 
 const uint8_t PROGMEM digital_pin_to_port_PGM[] = {
