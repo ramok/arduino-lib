@@ -62,9 +62,9 @@ ARCH = nano
 
 # The port Arduino is connected to.
 ifeq ($(ARCH), mega2560)
-PORT = /dev/ttyACM0
+PORT ?= /dev/ttyACM0
 else
-PORT = /dev/ttyUSB0
+PORT ?= /dev/ttyUSB0
 endif
 
 # netcat for console port redirecting
