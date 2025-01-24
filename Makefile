@@ -122,17 +122,17 @@ $(DESTDIR)/.git:
 
 $(DESTDIR)/lib/arduino:
 	cd $(DESTDIR) && mkdir -p lib && \
-	git submodule add https://github.com/ramok/arduino-lib.git lib/arduino && 	\
+	git submodule add git@github.com:ramok/arduino-lib.git lib/arduino && 	\
 	git commit -m 'add submodule arduino-lib'
 
 $(DESTDIR)/contrib/bootloaders:
 	cd $(DESTDIR) && mkdir -p contrib && \
-	git submodule add https://github.com/ramok/bootloaders.git contrib/bootloaders && \
+	git submodule add git@github.com:ramok/bootloaders.git contrib/bootloaders && \
 	git commit -m 'add submodule bootloaders'
 
 $(DESTDIR)/lib/canopen:
 	cd $(DESTDIR) && mkdir -p lib && \
-	git submodule add https://github.com/ramok/libcanopen.git lib/canopen && \
+	git submodule add git@github.com:ramok/libcanopen.git lib/canopen && \
 	git commit -m 'add submodule arduino-lib'
 
 
