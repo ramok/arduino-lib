@@ -326,19 +326,19 @@ $(ARDUINO_LIB).a $(SUBMODULES_A):
 
 lib/arduino:
 	mkdir -p lib
-	git submodule add ssh://lab.evologics.de/var/lib/git/arduino-lib.git lib/arduino || exit 0
+	git submodule add git@github.com:ramok/arduino-lib.git lib/arduino || exit 0
 	git submodule init
 	git submodule update
 
 contrib/bootloaders:
 	mkdir -p contrib
-	git submodule add -b master ssh://lab.evologics.de/var/lib/git/bootloaders.git contrib/bootloaders || exit 0
+	git submodule add -b master git@github.com:ramok/bootloaders.git contrib/bootloaders || exit 0
 	git submodule init
 	git submodule update
 
 lib/canopen:
 	mkdir -p lib
-	git submodule add -b master ssh://lab.evologics.de/var/lib/git/libcanopen.git lib/canopen || exit 0
+	git submodule add -b master git@github.com:ramok/libcanopen.git lib/canopen || exit 0
 	git submodule init
 	git submodule update
 
