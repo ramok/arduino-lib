@@ -278,7 +278,7 @@ console:
 			grep -q "$$PORT  *ESTABLISHED .*/avrdude" && echo "$$PORT busy by avrdude. press ctrl-c to quit" && sleep 2 && continue;\
 			$(NETCAT) $${PORT%:*} $${PORT#*:}; sleep 2; done;;\
 		*)	while :; do fuser $$PORT  && echo "$$PORT busy by avrdude. press ctrl-c to quit" && sleep 2 && continue;\
-			kermit -cl $$PORT -b 115200;reset;sleep 1;done;; \
+			kermit -cl $$PORT -b 115200; stty -raw; echo press ctrl-c to quit in 2 second; sleep 2; done;; \
 	esac; exit 0
 
 
