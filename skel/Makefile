@@ -48,7 +48,7 @@
 # $Id$
 
 #WITH_CAN=1
-SUBMODULES =
+SUBMODULES = arduino
 
 PROD_ID=0x12345678UL
 ifeq ($(WITH_CAN), 1)
@@ -237,7 +237,7 @@ config: config.h.new
 		cmp config.h.new config.h 2> /dev/null || mv config.h.new config.h; \
 	fi
 
-config.h.new:
+config.h.new: $(SUBMODULES_DIRS) lib/arduino/bin/git-version-gen
 	if [ -z "$(PROD_ID)" -o "$(PROD_ID)" = "0x12345678" ]; then \
 		echo Need setup PROD_ID in Makefile >&2; \
 		lib/arduino/bin/git-version-gen;\
@@ -326,21 +326,24 @@ $(ARDUINO_LIB).a $(SUBMODULES_A):
 
 lib/arduino:
 	mkdir -p lib
-	git submodule add git@github.com:ramok/arduino-lib.git lib/arduino || exit 0
+	git submodule add https://github.com/ramok/arduino-lib lib/arduino || exit 0
 	git submodule init
 	git submodule update
 
 contrib/bootloaders:
 	mkdir -p contrib
-	git submodule add -b master git@github.com:ramok/bootloaders.git contrib/bootloaders || exit 0
+	git submodule add -b master https://github.com/ramok/bootloaders contrib/bootloaders || exit 0
 	git submodule init
 	git submodule update
 
 lib/canopen:
 	mkdir -p lib
-	git submodule add -b master git@github.com:ramok/libcanopen.git lib/canopen || exit 0
+	git submodule add -b master https://github.com/ramok/libcanopen.git lib/canopen || exit 0
 	git submodule init
 	git submodule update
+
+lib/arduino/bin/git-version-gen:
+	git submodule update --init --recursive --remote
 
 # Compile: create object files from C++ source files.
 .cpp.o:
