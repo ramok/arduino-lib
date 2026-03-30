@@ -273,14 +273,16 @@ upload: build $(TARGET).hex
 
 .PHONY:	console
 console:
-	PORT=$(PORT); PORT=$${PORT#*:}; case $(PORT) in  \
-		net:*) while :; do sudo netstat -anp |\
+	@PORT=$(PORT); PORT=$${PORT#*:}; case $(PORT) in  \
+		net:*) command -v nc >/dev/null 2>&1 || { echo "Error: nc (netcat) is not installed. Install with: sudo apt-get install netcat-openbsd" >&2; exit 1; }; \
+			while :; do sudo netstat -anp |\
 			grep -q "$$PORT  *ESTABLISHED .*/avrdude" && echo "$$PORT busy by avrdude. press ctrl-c to quit" && sleep 2 && continue;\
 			$(NETCAT) $${PORT%:*} $${PORT#*:}; sleep 2; done;;\
-		*)	while :; do fuser $$PORT  && echo "$$PORT busy by avrdude. press ctrl-c to quit" && sleep 2 && continue;\
+		*)	command -v fuser >/dev/null 2>&1 || { echo "Error: fuser is not installed. Install with: sudo apt-get install psmisc" >&2; exit 1; }; \
+			command -v kermit >/dev/null 2>&1 || { echo "Error: kermit is not installed. Install with: sudo apt-get install ckermit" >&2; exit 1; }; \
+			while :; do fuser $$PORT  && echo "$$PORT busy by avrdude. press ctrl-c to quit" && sleep 2 && continue;\
 			kermit -cl $$PORT -b 115200; stty -raw; echo press ctrl-c to quit in 2 second; sleep 2; done;; \
 	esac; exit 0
-
 
 # Convert ELF to COFF for use in debugging / simulating in AVR Studio or VMLAB.
 COFFCONVERT=$(OBJCOPY) --debugging \
