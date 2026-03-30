@@ -5,6 +5,8 @@
 static FILE uart_io = {0};
 
 #ifdef UART_INPUT 
+#define SERIAL_MODE _FDEV_SETUP_RW
+
 static char uart_rx_buf[UART_INPUT_BUF_LEN + 1];
 static int  uart_rx_buf_len = 0;
 static bool uart_rx_buf_ready = false;
@@ -67,6 +69,7 @@ int uart_get_line(char *buf)
     return rc;
 }
 #else /* UART_INPUT */
+#define SERIAL_MODE _FDEV_SETUP_WRITE
 static int (*uart_getchar)(FILE *stream) = NULL;
 
 int uart_char_avail() {
@@ -82,6 +85,7 @@ void uart_handle()
 {
 
 }
+
 #endif /* UART_INPUT */
 
 static int uart_putchar(char c, FILE *stream)
@@ -92,12 +96,13 @@ static int uart_putchar(char c, FILE *stream)
     return 0 ;
 }
 
-void uart_init(uint32_t serial_speed, bool empty_line = false)
+void uart_init(uint32_t serial_speed, bool empty_line)
 {
     Serial.begin(serial_speed);
-    fdev_setup_stream (&uart_io, uart_putchar, uart_getchar, _FDEV_SETUP_RW);
+    fdev_setup_stream (&uart_io, uart_putchar, uart_getchar, SERIAL_MODE);
     stderr = stdout = stdin = &uart_io;
+#ifdef UART_INPUT
     uart_rx_empty_line = empty_line;
+#endif
 }
-
 

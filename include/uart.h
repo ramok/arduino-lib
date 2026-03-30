@@ -3,7 +3,7 @@
 
 #include <arduino.h>
 
-void uart_init(uint32_t serial_speed, bool empty_line);
+void uart_init(uint32_t serial_speed, bool empty_line = false);
 void uart_handle();
 
 #ifdef UART_INPUT
